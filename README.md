@@ -27,7 +27,7 @@ A projekt az egyetemi tanulmányaim során szerzett Laravel tapasztalataimra ép
 
 1. Klónozd le a repository-t:
 ```bash
-git clone [repository URL]
+git clone [https://github.com/Horesz/Szakdolgozat]
 ```
 
 2. Telepítsd a függőségeket:
@@ -56,15 +56,8 @@ php artisan migrate
 - [ ] Keresési funkció optimalizálása
 - [ ] Fizetési gateway integrálása
 
-## Közreműködés
-
-A projekt nyitott a fejlesztési javaslatokra. Ha szeretnél közreműködni:
-
-1. Fork-old a repository-t
-2. Hozz létre egy új branch-et
-3. Commit-old a változtatásaidat
-4. Nyiss egy Pull Request-et
 
 ## Kapcsolat
 
-[Itt add meg az elérhetőségeidet]
+- Github: [https://github.com/Horesz]
+
