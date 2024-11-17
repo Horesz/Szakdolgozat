@@ -1,0 +1,84 @@
+/* Alapvető színek */
+:root {
+    --primary-lila: #6f42c1;
+    --dark-lila: #4e2885;
+    --light-lila: #d6b3ff;
+    --text-light: #ffffff;
+    --text-dark: #212529;
+}
+
+/* Alap háttérszín */
+body {
+    background-color: var(--light-lila);
+    color: var(--text-dark);
+}
+
+/* Navigációs menü */
+.navbar {
+    background-color: var(--primary-lila);
+}
+.navbar .navbar-brand,
+.navbar .nav-link {
+    color: var(--text-light);
+}
+.navbar .nav-link:hover,
+.navbar .nav-link.active {
+    background-color: var(--dark-lila);
+    color: var(--text-light);
+    border-radius: 5px;
+}
+
+/* Keresőmező */
+.navbar .input-group .form-control {
+    border-color: var(--primary-lila);
+}
+.navbar .btn-outline-light {
+    color: var(--primary-lila);
+    border-color: var(--primary-lila);
+}
+.navbar .btn-outline-light:hover {
+    background-color: var(--primary-lila);
+    color: var(--text-light);
+}
+
+/* Gombok */
+.btn-primary {
+    background-color: var(--primary-lila);
+    border-color: var(--dark-lila);
+}
+.btn-primary:hover {
+    background-color: var(--dark-lila);
+    border-color: var(--primary-lila);
+}
+.btn-outline-primary {
+    color: var(--primary-lila);
+    border-color: var(--primary-lila);
+}
+.btn-outline-primary:hover {
+    background-color: var(--primary-lila);
+    color: var(--text-light);
+}
+
+/* Kártyák */
+.card {
+    border-color: var(--primary-lila);
+}
+.card-title {
+    color: var(--dark-lila);
+}
+.card-body a {
+    color: var(--primary-lila);
+}
+
+/* Lábléc */
+footer {
+    background-color: var(--dark-lila);
+    color: var(--text-light);
+}
+footer a {
+    color: var(--light-lila);
+}
+footer a:hover {
+    color: var(--primary-lila);
+}
+
