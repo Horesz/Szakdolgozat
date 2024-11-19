@@ -1,7 +1,7 @@
 # 🎮 Gamer Webáruház
 
 ## A Projektről
-* Képernyőterv: [https://imgur.com/9xotJwZ]
+![Képernyőterv](https://i.imgur.com/9xotJwZ.png)
 
 Ez a projekt egy Laravel alapú webáruház, amely kifejezetten gamerek számára készült. A webáruház lehetővé teszi a felhasználók számára különböző gaming termékek böngészését, kosárba helyezését és megvásárlását, mindezt egy felhasználóbarát felületen keresztül.
 
