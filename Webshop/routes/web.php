@@ -27,6 +27,9 @@ Route::get('/gaming-pc', [ProductController::class, 'gamingPc'])->name('category
 Route::get('/peripherals', [ProductController::class, 'peripherals'])->name('category.peripherals');
 Route::get('/components', [ProductController::class, 'components'])->name('category.components');
 Route::get('/accessories', [ProductController::class, 'accessories'])->name('category.accessories');
+Route::get('/category/games', [CategoryController::class, 'games'])->name('category.games');
+Route::get('/category/consoles', [CategoryController::class, 'consoles'])->name('category.consoles');
+
 
 // Egyéb útvonalak
 Route::get('/deals', [ProductController::class, 'deals'])->name('deals');

@@ -21,6 +21,13 @@ body {
 .navbar .nav-link {
     color: var(--text-light);
 }
+.navbar-logo {
+    width: 30px;
+    height: 30px;
+    object-fit: contain;
+    margin-right: 10px;
+}
+
 .navbar .nav-link:hover,
 .navbar .nav-link.active {
     background-color: var(--dark-lila);
@@ -62,13 +69,29 @@ body {
 /* Kártyák */
 .card {
     border-color: var(--primary-lila);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
-.card-title {
-    color: var(--dark-lila);
+.card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
 }
-.card-body a {
-    color: var(--primary-lila);
+
+/* Képek a kártyákon */
+/* Kártyák képeinek beállítása */
+.card-img-top {
+    object-fit:fill; /* Biztosítja, hogy a kép ne legyen torz */
+    height: 225px; /* Képek egységes magasságának beállítása */
+    width: 100%; /* Kitölti a kártya szélességét */
+    border-top-left-radius: 0.25rem; /* Sarok lekerekítés (ha szükséges) */
+    border-top-right-radius: 0.25rem; /* Sarok lekerekítés (ha szükséges) */
+    transition: transform 0.3s ease; /* Hover animáció */
 }
+
+/* Hover effektus a képekhez */
+.card-img-top:hover {
+    transform: scale(1.05); /* Hoverre kissé kinagyítja a képet */
+}
+
 
 /* Lábléc */
 footer {
@@ -81,4 +104,3 @@ footer a {
 footer a:hover {
     color: var(--primary-lila);
 }
-

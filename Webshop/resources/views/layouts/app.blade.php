@@ -12,6 +12,10 @@
     <!-- Saját CSS -->
     <link href="{{ asset('css/style.css') }}" rel="stylesheet">
     <link href="{{ asset('css/auth.css') }}" rel="stylesheet">
+    <!-- favicon -->
+
+    <link rel="icon" type="image/png" href="{{ asset('images/Gamershop.png') }}">
+
 </head>
 <body class="bg-light">
     <!-- Navigációs menü -->

@@ -19,56 +19,101 @@
                     </div>
                 </div>
                 <div class="col-lg-6 d-none d-lg-block">
-                    <img src="{{ asset('images/hero-image.png') }}" alt="Gaming Setup" class="img-fluid rounded shadow">
+                    <img src="{{ asset('images/Gamershop.png') }}" alt="Gaming Setup" class="img-fluid rounded shadow">
                 </div>
             </div>
         </div>
     </div>
 
-    {{-- Kategória kártyák --}}
     <section class="py-5 bg-light">
         <div class="container">
             <h2 class="text-center mb-5">Népszerű kategóriák</h2>
             <div class="row g-4">
+                <!-- Gamerpc kártya -->
+
                 <div class="col-md-6 col-lg-3">
                     <div class="card h-100 border-0 shadow-sm">
-                        <img src="{{ asset('images/categories/gaming-pc.jpg') }}" class="card-img-top" alt="Gaming PC">
+                        <img src="{{ asset('images/categories/gamerpcCategoryimage.png') }}" class="card-img-top" alt="Gaming PC">
                         <div class="card-body text-center">
                             <h5 class="card-title">Gaming PC-k</h5>
                             <a href="{{ route('category.gaming-pc') }}" class="btn btn-outline-primary">Megnézem</a>
                         </div>
                     </div>
                 </div>
+                <!-- perifériák kártya -->
                 <div class="col-md-6 col-lg-3">
                     <div class="card h-100 border-0 shadow-sm">
-                        <img src="{{ asset('images/categories/peripherals.jpg') }}" class="card-img-top" alt="Perifériák">
+                        <img src="{{ asset('images/categories/peripherals.png') }}" class="card-img-top" alt="Perifériák">
                         <div class="card-body text-center">
                             <h5 class="card-title">Perifériák</h5>
                             <a href="{{ route('category.peripherals') }}" class="btn btn-outline-primary">Megnézem</a>
                         </div>
                     </div>
                 </div>
+                <!-- Alkatrészek kártya -->
                 <div class="col-md-6 col-lg-3">
                     <div class="card h-100 border-0 shadow-sm">
-                        <img src="{{ asset('images/categories/components.jpg') }}" class="card-img-top" alt="Alkatrészek">
+                        <img src="{{ asset('images/categories/alkatreszek.png') }}" class="card-img-top" alt="Alkatrészek">
                         <div class="card-body text-center">
                             <h5 class="card-title">Alkatrészek</h5>
                             <a href="{{ route('category.components') }}" class="btn btn-outline-primary">Megnézem</a>
                         </div>
                     </div>
                 </div>
+                <!-- Kiegészítők kártya -->
                 <div class="col-md-6 col-lg-3">
                     <div class="card h-100 border-0 shadow-sm">
-                        <img src="{{ asset('images/categories/accessories.jpg') }}" class="card-img-top" alt="Kiegészítők">
+                        <img src="{{ asset('images/categories/accessories.png') }}" class="card-img-top" alt="Kiegészítők">
                         <div class="card-body text-center">
                             <h5 class="card-title">Kiegészítők</h5>
                             <a href="{{ route('category.accessories') }}" class="btn btn-outline-primary">Megnézem</a>
                         </div>
                     </div>
                 </div>
+                <!-- Játékok kártya -->
+                <div class="col-md-6 col-lg-3">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <img src="{{ asset('images/categories/games.png') }}" class="card-img-top" alt="Játékok">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">Játékok</h5>
+                            <a href="{{ route('category.games') }}" class="btn btn-outline-primary">Megnézem</a>
+                        </div>
+                    </div>
+                </div>
+                <!-- Konzolok kártya -->
+                <div class="col-md-6 col-lg-3">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <img src="{{ asset('images/categories/consoles.png') }}" class="card-img-top" alt="Konzolok">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">Konzolok</h5>
+                            <a href="{{ route('category.consoles') }}" class="btn btn-outline-primary">Megnézem</a>
+                        </div>
+                    </div>
+                </div>
+                <!-- Laptop kártya -->
+                <div class="col-md-6 col-lg-3">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <img src="{{ asset('images/categories/laptop.png') }}" class="card-img-top" alt="Konzolok">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">Laptop</h5>
+                            <a href="{{ route('category.consoles') }}" class="btn btn-outline-primary">Megnézem</a>
+                        </div>
+                    </div>
+                </div>
+                <!-- Telefon kártya -->
+                <div class="col-md-6 col-lg-3">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <img src="{{ asset('images/categories/telefon.png') }}" class="card-img-top" alt="Konzolok">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">Telefon</h5>
+                            <a href="{{ route('category.consoles') }}" class="btn btn-outline-primary">Megnézem</a>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
+    
 
     {{-- Kiemelt termékek --}}
     <section class="py-5">

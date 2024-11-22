@@ -19,7 +19,6 @@
                         <i class="fas fa-home me-1"></i> Főoldal
                     </a>
                 </li>
-                
                 {{-- Termék kategóriák dropdown --}}
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="categoryDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -33,13 +32,11 @@
                         <li><a class="dropdown-item" href="/accessories">Kiegészítők</a></li>
                     </ul>
                 </li>
-
                 <li class="nav-item">
                     <a class="nav-link {{ request()->is('deals') ? 'active' : '' }}" href="/deals">
                         <i class="fas fa-percentage me-1"></i> Akciók
                     </a>
                 </li>
-
                 <li class="nav-item">
                     <a class="nav-link {{ request()->is('contact') ? 'active' : '' }}" href="/contact">
                         <i class="fas fa-envelope me-1"></i> Kapcsolat
@@ -57,7 +54,7 @@
                 </div>
             </form>
 
-            {{-- Jobb oldali menü (Kosár, Felhasználó) --}}
+            {{-- Jobb oldali menü --}}
             <ul class="navbar-nav">
                 <li class="nav-item">
                     <a class="nav-link" href="/cart">
@@ -69,7 +66,6 @@
                         @endif
                     </a>
                 </li>
-
                 @guest
                     <li class="nav-item">
                         <a class="nav-link" href="/login">
