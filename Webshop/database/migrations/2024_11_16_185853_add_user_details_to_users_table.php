@@ -10,19 +10,28 @@ return new class extends Migration
      * Run the migrations.
      */
     public function up(): void
-    {
-        Schema::table('users', function (Blueprint $table) {
-            //
-        });
-    }
+{
+    Schema::table('users', function (Blueprint $table) {
+        
+    });
+}
+
 
     /**
      * Reverse the migrations.
      */
     public function down(): void
-    {
-        Schema::table('users', function (Blueprint $table) {
-            //
-        });
-    }
+{
+    Schema::table('users', function (Blueprint $table) {
+        $table->dropColumn([
+            'postal_code', 
+            'street', 
+            'house_number', 
+            'floor', 
+            'door', 
+            'profile_image'
+        ]);
+    });
+}
+
 };

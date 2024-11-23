@@ -17,6 +17,7 @@ body {
 .navbar {
     background-color: var(--primary-lila);
 }
+
 .navbar .navbar-brand,
 .navbar .nav-link {
     color: var(--text-light);
@@ -93,6 +94,173 @@ body {
 }
 
 
+/* AUTH CSS */
+/* Login és Register közös alapstílusai */
+/* Register oldal specifikus stílusok */
+.auth-page .form-container .flex {
+    display: flex;
+    gap: 10px;
+    justify-content: space-between;
+  }
+  
+  .auth-page .form-container .flex label {
+    display: block;
+  margin-bottom: 15px; /* Ez biztosít helyet az egyes inputok között */
+  }
+  
+  .auth-page .form-container .flex label:first-child {
+    margin-right: 10px;
+  }
+  
+  .auth-page .message {
+    text-align: center;
+    font-size: 14px;
+    margin-bottom: 10px;
+    color: rgba(88, 87, 87, 0.822);
+  }
+.auth-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh; /* Az oldal teljes magasságának lefedése */
+    background-color:var(--primary-lila);
+    
+  }
+  
+  .auth-page .form-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 350px;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 20px;
+    position: relative;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Árnyék hozzáadása */
+    
+  }
+  
+  /* Cím stílus */
+  .auth-page .title {
+    font-size: 28px;
+    color: var(--primary-lila);
+    font-weight: 600;
+    letter-spacing: -1px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding-left: 30px;
+    
+  }
+  
+  .auth-page .title::before,
+  .auth-page .title::after {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    border-radius: 50%;
+    left: 0px;
+    background-color: var(--primary-lila);
+    
+  }
+  
+  .auth-page .title::before {
+    width: 18px;
+    height: 18px;
+  }
+  
+  .auth-page .title::after {
+    width: 18px;
+    height: 18px;
+    animation: pulse 1s linear infinite;
+  }
+  
+  /* Üzenetek */
+  .auth-page .message,
+  .auth-page .signin {
+    color: rgba(88, 87, 87, 0.822);
+    font-size: 14px;
+    text-align: center;
+  }
+  
+  .auth-page .signin a {
+    color: royalblue;
+  }
+  
+  .auth-page .signin a:hover {
+    text-decoration: underline royalblue;
+  }
+  
+  /* Input mezők */
+  .auth-page .form-container label {
+    position: relative;
+  }
+  
+  .auth-page .form-container label .input {
+    width: 100%;
+    padding: 10px 10px 20px 10px;
+    outline: 0;
+    border: 1px solid rgba(105, 105, 105, 0.397);
+    border-radius: 10px;
+  margin-bottom: 15px; /* Ez biztosít helyet az egyes inputok között */
+
+  }
+  
+  .auth-page .form-container label .input + span {
+    position: absolute;
+    left: 10px;
+    top: 15px;
+    color: grey;
+    font-size: 0.9em;
+    cursor: text;
+    transition: 0.3s ease;
+  }
+  
+  .auth-page .form-container label .input:placeholder-shown + span {
+    top: 15px;
+    font-size: 0.9em;
+  }
+  
+  .auth-page .form-container label .input:focus + span,
+  .auth-page .form-container label .input:valid + span {
+    top: 30px;
+    font-size: 0.7em;
+    font-weight: 600;
+  }
+  
+  .auth-page .form-container label .input:valid + span {
+    color: green;
+  }
+  
+  /* Gombok */
+  .auth-page .submit {
+    border: none;
+    outline: none;
+    background-color: royalblue;
+    padding: 10px;
+    border-radius: 10px;
+    color: #fff;
+    font-size: 16px;
+    transition: 0.3s ease;
+  }
+  
+  .auth-page .submit:hover {
+    background-color: rgb(56, 90, 194);
+  }
+  
+  @keyframes pulse {
+    from {
+      transform: scale(0.9);
+      opacity: 1;
+    }
+    to {
+      transform: scale(1.8);
+      opacity: 0;
+    }
+  }
+  
+
 /* Lábléc */
 footer {
     background-color: var(--dark-lila);
@@ -104,3 +272,37 @@ footer a {
 footer a:hover {
     color: var(--primary-lila);
 }
+
+
+/* error cathelés */
+.alert {
+    padding: 15px;
+    margin: 20px 0;
+    border: 1px solid transparent;
+    border-radius: 5px;
+    position: relative;
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+.alert-danger {
+    color: #721c24;
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+}
+
+.alert-dismissible .close {
+    position: absolute;
+    top: 0;
+    right: 10px;
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    line-height: 1.2;
+    color: #721c24;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+

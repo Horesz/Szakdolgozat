@@ -1,17 +1,41 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('Dashboard') }}
-        </h2>
-    </x-slot>
+@extends('layouts.app')
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900 dark:text-gray-100">
-                    {{ __("You're logged in!") }}
-                </div>
-            </div>
+@section('content')
+<div class="container">
+    <h1>Üdvözlünk, {{ $user->name }}!</h1>
+    <p>Ez a te személyre szabott vezérlőpultod.</p>
+
+    <!-- Példa: felhasználói adatok -->
+    <div class="card mt-4">
+        <div class="card-header">Profilod</div>
+        <div class="card-body">
+            <p><strong>Email:</strong> {{ $user->email }}</p>
+            <p><strong>Telefon:</strong> {{ $user->phone ?? 'Nincs megadva' }}</p>
+            <p><strong>Lakcím:</strong> 
+                {{ $user->postal_code ?? '' }} 
+                {{ $user->street ?? '' }} 
+                {{ $user->house_number ?? '' }}
+            </p>
         </div>
     </div>
-</x-app-layout>
+
+    <!-- Példa: nem adminisztrátor esetén -->
+    @if($user->is_admin)
+        <div class="alert alert-info mt-4">
+             Adminisztrátor vagy.
+        </div>
+    @endif
+
+    <!-- Példa: aktivitások -->
+    @if(!empty($recentActivities))
+        <h2>Legutóbbi aktivitásaid</h2>
+        <ul>
+            @foreach($recentActivities as $activity)
+                <li>{{ $activity }}</li>
+            @endforeach
+        </ul>
+    @else
+        <p>Még nincsenek aktivitásaid.</p>
+    @endif
+</div>
+@endsection

@@ -30,7 +30,7 @@
     <footer class="py-4 bg-dark text-white text-center">
         <div class="container">
             <p>&copy; {{ date('Y') }} GamerShop. Minden jog fenntartva.</p>
-            <p>Készítette: <a href="https://github.com/username" class="text-white text-decoration-underline">Fejlesztő neve</a></p>
+            <p>Készítette: <a href="https://github.com/horesz" class="text-white text-decoration-underline">Sinka Barnabás</a></p>
         </div>
     </footer>
 
@@ -39,5 +39,22 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="{{ asset('js/script.js') }}"></script>
     @stack('scripts')
+    @if ($errors->any())
+    <div class="alert alert-danger alert-dismissible" id="error-alert">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">&times;</button>
+        <ul>
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+
+    <script>
+        setTimeout(function() {
+            document.getElementById("error-alert").style.display = "none";
+        }, 10000); // 10 másodperc után eltűnik
+    </script>
+@endif
+
 </body>
 </html>

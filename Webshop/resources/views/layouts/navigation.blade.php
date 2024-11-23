@@ -83,7 +83,7 @@
                             <i class="fas fa-user me-1"></i> {{ Auth::user()->name }}
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                            <li><a class="dropdown-item" href="/profile">Profil</a></li>
+                            <li><a class="dropdown-item" href="/profile">Profil</a></li> <!-- Itt a profil edit route -->
                             <li><a class="dropdown-item" href="/orders">Rendeléseim</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li>

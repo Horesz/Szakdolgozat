@@ -17,9 +17,15 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->string('address')->nullable();
-        $table->string('phone')->nullable();
-        $table->string('postal_code')->nullable();
+            $table->string('postal_code')->nullable(); // Irányítószám
+            $table->string('street')->nullable(); // Utca
+            $table->string('house_number')->nullable(); // Házszám
+            $table->string('floor')->nullable(); // Emelet
+            $table->string('door')->nullable(); // Ajtó
+            $table->string('address')->nullable(); // Teljes cím (opcionális)
+            $table->string('phone')->nullable(); // Telefonszám
+            $table->string('profile_image')->nullable(); // Profilkép
+            $table->boolean('is_admin')->default(false); // Admin státusz
             $table->rememberToken();
             $table->timestamps();
         });
@@ -45,9 +51,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn(['address', 'phone', 'postal_code']);
-        });
+        Schema::dropIfExists('users'); // Az egész tábla törlése
         Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('sessions');
     }
