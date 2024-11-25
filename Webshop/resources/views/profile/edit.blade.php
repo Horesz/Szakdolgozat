@@ -1,10 +1,12 @@
 @extends('layouts.app')
+@section('title', 'GamerShop - Profil')
 
 @section('content')
 <div class="container my-5">
     <div class="card shadow-sm">
         <div class="card-header bg-primary text-white">
             <h3 class="mb-0">Profil szerkesztése</h3>
+            
         </div>
         <div class="card-body">
             <form method="POST" action="{{ route('profile.update') }}" enctype="multipart/form-data">

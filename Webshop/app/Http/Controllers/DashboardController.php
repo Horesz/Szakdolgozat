@@ -13,5 +13,6 @@ class DashboardController extends Controller
     $recentActivities = []; // Pl. aktivitások vagy statisztikák
 
     return view('dashboard', compact('user', 'recentActivities')); // Módosított nézet neve
+    
 }
 }

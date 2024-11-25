@@ -66,6 +66,10 @@
                         @endif
                     </a>
                 </li>
+
+                {{-- Admin menü (csak szuperadminnak) --}}
+                
+
                 @guest
                     <li class="nav-item">
                         <a class="nav-link" href="/login">
@@ -78,23 +82,35 @@
                         </a>
                     </li>
                 @else
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-user me-1"></i> {{ Auth::user()->name }}
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                            <li><a class="dropdown-item" href="/profile">Profil</a></li> <!-- Itt a profil edit route -->
-                            <li><a class="dropdown-item" href="/orders">Rendeléseim</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li>
-                                <form action="/logout" method="POST">
-                                    @csrf
-                                    <button type="submit" class="dropdown-item">Kijelentkezés</button>
-                                </form>
-                            </li>
-                        </ul>
-                    </li>
-                @endguest
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-user me-1"></i> {{ Auth::user()->name }}
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                        @if(Auth::user()->is_admin) 
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->is('admin/products') ? 'active' : '' }}" href="/admin/products">
+                                <i class="fas fa-boxes me-1"></i> Termékek kezelése
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->is('admin/users') ? 'active' : '' }}" href="/admin/users">
+                                <i class="fas fa-users me-1"></i> Felhasználók kezelése
+                            </a>
+                        </li>
+                        @endif
+                        <li><a class="dropdown-item" href="{{ route('dashboard') }}">Profil</a></li> <!-- Itt a profil edit route -->
+                        <li><a class="dropdown-item" href="/orders">Rendeléseim</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <form action="/logout" method="POST">
+                                @csrf
+                                <button type="submit" class="dropdown-item">Kijelentkezés</button>
+                            </form>
+                        </li>
+                    </ul>
+                </li>
+            @endguest
             </ul>
         </div>
     </div>

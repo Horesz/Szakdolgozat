@@ -1,4 +1,5 @@
 @extends('layouts.app')
+@section('title', 'GamerShop - Bejelentkezés')
 
 @section('content')
 <link rel="stylesheet" href="{{ asset('css/auth.css') }}">

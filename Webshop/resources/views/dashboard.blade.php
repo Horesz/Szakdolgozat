@@ -1,11 +1,13 @@
 @extends('layouts.app')
 
+@section('title', 'GamerShop - Dashboard')
+
 @section('content')
 <div class="container">
     <h1>Üdvözlünk, {{ $user->name }}!</h1>
     <p>Ez a te személyre szabott vezérlőpultod.</p>
 
-    <!-- Példa: felhasználói adatok -->
+    <!-- Profil kártya -->
     <div class="card mt-4">
         <div class="card-header">Profilod</div>
         <div class="card-body">
@@ -16,17 +18,21 @@
                 {{ $user->street ?? '' }} 
                 {{ $user->house_number ?? '' }}
             </p>
+            <!-- Profil szerkesztés gomb -->
+            <a href="/profile" class="btn btn-primary">Profil szerkesztése</a>
         </div>
     </div>
 
-    <!-- Példa: nem adminisztrátor esetén -->
-    @if($user->is_admin)
-        <div class="alert alert-info mt-4">
-             Adminisztrátor vagy.
-        </div>
-    @endif
+    <!-- Adminisztrátor információk -->
+    @if(Auth::user()->is_admin)
+    <div class="alert alert-info mt-4">
+        Adminisztrátor vagy.
+        <a href="{{ route('admin.users.index') }}" class="btn btn-danger">Felhasználók kezelése</a>
+    </div>
+@endif
 
-    <!-- Példa: aktivitások -->
+
+    <!-- Aktivitások -->
     @if(!empty($recentActivities))
         <h2>Legutóbbi aktivitásaid</h2>
         <ul>
