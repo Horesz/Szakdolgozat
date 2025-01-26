@@ -1,71 +1,23 @@
 @extends('layouts.admin')
 
 @section('content')
-    <div class="container">
-        <h1>Termék szerkesztése</h1>
+<div class="container mx-auto py-6">
+    <h1 class="text-2xl font-bold mb-6">Termék szerkesztése</h1>
 
-        <form action="{{ route('products.update', $product->id) }}" method="POST" enctype="multipart/form-data">
-            @csrf
-            @method('PUT')
+    <form action="{{ route('admin.products.update', $product->id) }}" method="POST" enctype="multipart/form-data">
+        @csrf
+        @method('PUT')
 
-            <div class="form-group">
-                <label for="name">Név</label>
-                <input type="text" name="name" id="name" class="form-control" value="{{ $product->name }}" required>
-            </div>
+        <div class="mb-4">
+            <label for="name" class="block font-medium">Termék neve</label>
+            <input type="text" name="name" id="name" class="w-full border-gray-300 rounded p-2" value="{{ old('name', $product->name) }}" required>
+            @error('name') <p class="text-red-500 text-sm">{{ $message }}</p> @enderror
+        </div>
 
-            <div class="form-group">
-                <label for="slug">Slug</label>
-                <input type="text" name="slug" id="slug" class="form-control" value="{{ $product->slug }}" required>
-            </div>
-
-            <div class="form-group">
-                <label for="description">Leírás</label>
-                <textarea name="description" id="description" class="form-control" required>{{ $product->description }}</textarea>
-            </div>
-
-            <div class="form-group">
-                <label for="price">Ár</label>
-                <input type="number" name="price" id="price" class="form-control" value="{{ $product->price }}" required>
-            </div>
-
-            <div class="form-group">
-                <label for="original_price">Eredeti ár</label>
-                <input type="number" name="original_price" id="original_price" class="form-control" value="{{ $product->original_price }}">
-            </div>
-
-            <div class="form-group">
-                <label for="discount">Kedvezmény (%)</label>
-                <input type="number" name="discount" id="discount" class="form-control" value="{{ $product->discount }}">
-            </div>
-
-            <div class="form-group">
-                <label for="category_id">Kategória</label>
-                <select name="category_id" id="category_id" class="form-control" required>
-                    @foreach($categories as $category)
-                        <option value="{{ $category->id }}" {{ $product->category_id == $category->id ? 'selected' : '' }}>{{ $category->name }}</option>
-                    @endforeach
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label for="image">Kép</label>
-                <input type="file" name="image" id="image" class="form-control">
-                @if($product->image)
-                    <img src="{{ asset('storage/' . $product->image) }}" alt="Product Image" class="img-thumbnail mt-2" width="150">
-                @endif
-            </div>
-
-            <div class="form-group">
-                <label for="stock">Készlet</label>
-                <input type="number" name="stock" id="stock" class="form-control" value="{{ $product->stock }}" required>
-            </div>
-
-            <div class="form-group">
-                <label for="featured">Kiemelt termék</label>
-                <input type="checkbox" name="featured" id="featured" {{ $product->featured ? 'checked' : '' }}>
-            </div>
-
-            <button type="submit" class="btn btn-warning">Frissítés</button>
-        </form>
-    </div>
+        <!-- A többi mező ugyanaz, mint a create.blade.php-ben, az értékek pedig a $product objektumból jönnek -->
+        <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+            Frissítés
+        </button>
+    </form>
+</div>
 @endsection

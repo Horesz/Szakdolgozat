@@ -30,7 +30,9 @@ Route::post('/newsletter/subscribe', [NewsletterController::class, 'subscribe'])
 
 // Bejelentkezett felhasználói útvonalak
 Route::middleware(['auth'])->group(function () {
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])
+    ->middleware(['auth', 'verified'])
+    ->name('dashboard');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
@@ -40,15 +42,7 @@ Route::middleware(['auth'])->group(function () {
 // Admin útvonalak
 Route::middleware(['auth', 'is_admin'])->prefix('admin')->group(function () {
     // Termék kezelés
-    Route::prefix('products')->group(function () {
-        Route::get('/', [ProductController::class, 'index'])->name('products.index');
-        Route::get('/create', [ProductController::class, 'create'])->name('products.create');
-        Route::post('/', [ProductController::class, 'store'])->name('products.store');
-        Route::get('/{product}/edit', [ProductController::class, 'edit'])->name('products.edit');
-        Route::put('/{product}', [ProductController::class, 'update'])->name('products.update');
-        Route::delete('/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
-    });
-
+    
     // Felhasználó kezelés
     Route::prefix('users')->group(function () {
         Route::get('/', [AdminController::class, 'index'])->name('admin.users.index');
@@ -56,6 +50,19 @@ Route::middleware(['auth', 'is_admin'])->prefix('admin')->group(function () {
         Route::put('/{user}', [AdminController::class, 'update'])->name('admin.users.update');
         Route::delete('/{user}', [AdminController::class, 'destroy'])->name('admin.users.destroy');
     });
+});
+Route::get('/products', [ProductController::class, 'index'])->name('products.index');
+Route::get('/product/{slug}', [ProductController::class, 'show'])->name('products.show');
+Route::get('/search', [ProductController::class, 'search'])->name('products.search');
+
+// Admin routes (middleware-rel védve)
+Route::middleware(['auth', 'admin'])->group(function () {
+    Route::get('/admin/products', [ProductController::class, 'index'])->name('admin.products.index');
+    Route::get('/admin/products/create', [ProductController::class, 'create'])->name('admin.products.create');
+    Route::post('/admin/products', [ProductController::class, 'store'])->name('admin.products.store');
+    Route::get('/admin/products/{product}/edit', [ProductController::class, 'edit'])->name('admin.products.edit');
+    Route::put('/admin/products/{product}', [ProductController::class, 'update'])->name('admin.products.update');
+    Route::delete('/admin/products/{product}', [ProductController::class, 'destroy'])->name('admin.products.destroy');
 });
 
 // Auth routes

@@ -2,47 +2,67 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Hash;
+use Carbon\Carbon;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
-        'name',
-        'email',
+        'firstname', 
+        'lastname', 
+        'email', 
+        'phone',
+        'birth_date',
+        'address_zip',
+        'address_city',
+        'address_street',
+        'address_additional',
         'password',
+        'role',
+        'is_active'
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
     protected $hidden = [
-        'password',
+        'password', 
         'remember_token',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'birth_date' => 'date',
+        'is_active' => 'boolean',
+    ];
+
+    // Password hash mutator
+    public function setPasswordAttribute($value)
     {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
+        $this->attributes['password'] = Hash::make($value);
+    }
+
+    // Full name accessor
+    public function getFullNameAttribute()
+    {
+        return "{$this->firstname} {$this->lastname}";
+    }
+
+    // Full address accessor
+    public function getFullAddressAttribute()
+    {
+        return implode(', ', array_filter([
+            $this->address_zip,
+            $this->address_city,
+            $this->address_street,
+            $this->address_additional
+        ]));
+    }
+
+    // Age calculation
+    public function getAgeAttribute()
+    {
+        return $this->birth_date ? Carbon::parse($this->birth_date)->age : null;
     }
 }

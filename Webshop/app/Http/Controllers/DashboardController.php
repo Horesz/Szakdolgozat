@@ -2,17 +2,24 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
     public function index()
-{
-    // Példa adatok (ezeket cserélheted dinamikus tartalomra)
-    $user = auth()->user(); // Az aktuális bejelentkezett felhasználó
-    $recentActivities = []; // Pl. aktivitások vagy statisztikák
+    {
+        $user = Auth::user();
 
-    return view('dashboard', compact('user', 'recentActivities')); // Módosított nézet neve
-    
-}
+        // Példa aktivitások (később kicserélhető valós aktivitásokra)
+        $recentActivities = [
+            'Regisztráció: ' . $user->created_at->format('Y-m-d H:i:s'),
+            'Utolsó bejelentkezés: ' . $user->last_login_at ?? 'Első bejelentkezés'
+        ];
+
+        return view('dashboard', [
+            'user' => $user,
+            'recentActivities' => $recentActivities
+        ]);
+    }
 }

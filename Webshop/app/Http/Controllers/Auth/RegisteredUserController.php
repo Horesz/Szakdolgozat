@@ -11,6 +11,10 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
+use Illuminate\Validation\Rules\Password;
+use Carbon\Carbon;
+
+
 
 class RegisteredUserController extends Controller
 {
@@ -27,26 +31,46 @@ class RegisteredUserController extends Controller
      *
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function store(Request $request): RedirectResponse
+
+    public function store(Request $request)
     {
-        $request->validate([
-            'firstname' => ['required', 'string', 'max:255'],
-            'lastname' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+        $validatedData = $request->validate([
+            'firstname' => ['required', 'string', 'max:50'],
+            'lastname' => ['required', 'string', 'max:50'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'phone' => ['nullable', 'string', 'regex:/^(\+36|06)?[0-9]{9}$/'],
+            'birth_date' => ['nullable', 'date', 'before:today'],
+            'address_zip' => ['nullable', 'string', 'max:10'],
+            'address_city' => ['nullable', 'string', 'max:100'],
+            'address_street' => ['nullable', 'string', 'max:255'],
+            'address_additional' => ['nullable', 'string', 'max:255'],
+            'password' => [
+                'required', 
+                'confirmed', 
+                Password::min(8)
+                    ->letters()
+                    ->mixedCase()
+                    ->numbers()
+                    ->symbols()
+            ]
         ]);
 
         $user = User::create([
-            'name' => $request->firstname . ' ' . $request->lastname, // Konkatenálás
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
+            'firstname' => $validatedData['firstname'],
+            'lastname' => $validatedData['lastname'],
+            'email' => $validatedData['email'],
+            'phone' => $validatedData['phone'] ?? null,
+            'birth_date' => $validatedData['birth_date'] ? Carbon::parse($validatedData['birth_date']) : null,
+            'address_zip' => $validatedData['address_zip'] ?? null,
+            'address_city' => $validatedData['address_city'] ?? null,
+            'address_street' => $validatedData['address_street'] ?? null,
+            'address_additional' => $validatedData['address_additional'] ?? null,
+            'password' => $validatedData['password']
         ]);
-
-        event(new Registered($user));
 
         Auth::login($user);
 
-        return redirect()->route('dashboard');
-
+        return redirect()->route('dashboard')->with('success', 'Sikeres regisztráció!');
     }
 }
+

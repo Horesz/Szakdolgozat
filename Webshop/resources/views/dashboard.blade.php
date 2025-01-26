@@ -4,44 +4,56 @@
 
 @section('content')
 <div class="container">
-    <h1>Üdvözlünk, {{ $user->name }}!</h1>
+    <h1>Üdvözlünk, {{ $user->full_name }}!</h1>
     <p>Ez a te személyre szabott vezérlőpultod.</p>
-
+    @if($user->role === 'admin')
+    <div class="alert alert-info mt-4">
+        Adminisztrátor vagy.
+        {{-- <a href="{{ route('admin.dashboard') }}" class="btn btn-danger">Adminisztrációs felület</a> --}}
+    </div>
+    @endif
     <!-- Profil kártya -->
     <div class="card mt-4">
         <div class="card-header">Profilod</div>
         <div class="card-body">
+            <p><strong>Név:</strong> {{ $user->firstname }} {{ $user->lastname }}</p>
             <p><strong>Email:</strong> {{ $user->email }}</p>
-            <p><strong>Telefon:</strong> {{ $user->phone ?? 'Nincs megadva' }}</p>
-            <p><strong>Lakcím:</strong> 
-                {{ $user->postal_code ?? '' }} 
-                {{ $user->street ?? '' }} 
-                {{ $user->house_number ?? '' }}
+            <p><strong>Telefonszám:</strong> {{ $user->phone ?? 'Nincs megadva' }}</p>
+            <p><strong>Születési dátum:</strong> 
+                {{ $user->birth_date ? $user->birth_date->format('Y-m-d') : 'Nincs megadva' }}
+                ({{ $user->age ? $user->age . ' éves' : '' }})
             </p>
+            <p><strong>Lakcím:</strong> 
+                @if($user->address_zip || $user->address_city || $user->address_street || $user->address_additional)
+                    {{ $user->address_zip }} 
+                    {{ $user->address_city }}, 
+                    {{ $user->address_street }} 
+                    {{ $user->address_additional }}
+                @else
+                    Nincs megadva
+                @endif
+            </p>
+
             <!-- Profil szerkesztés gomb -->
-            <a href="/profile" class="btn btn-primary">Profil szerkesztése</a>
+            <a href="{{ route('profile.edit') }}" class="btn btn-primary">Profil szerkesztése</a>
         </div>
     </div>
 
     <!-- Adminisztrátor információk -->
-    @if(Auth::user()->is_admin)
-    <div class="alert alert-info mt-4">
-        Adminisztrátor vagy.
-        <a href="{{ route('admin.users.index') }}" class="btn btn-danger">Felhasználók kezelése</a>
-    </div>
-@endif
-
+    
 
     <!-- Aktivitások -->
     @if(!empty($recentActivities))
-        <h2>Legutóbbi aktivitásaid</h2>
-        <ul>
-            @foreach($recentActivities as $activity)
-                <li>{{ $activity }}</li>
-            @endforeach
-        </ul>
-    @else
-        <p>Még nincsenek aktivitásaid.</p>
+        <div class="card mt-4">
+            <div class="card-header">Legutóbbi aktivitásaid</div>
+            <div class="card-body">
+                <ul class="list-unstyled">
+                    @foreach($recentActivities as $activity)
+                        <li>{{ $activity }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        </div>
     @endif
 </div>
 @endsection

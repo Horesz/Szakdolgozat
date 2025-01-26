@@ -3,57 +3,70 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Sluggable\HasSlug;
+use Spatie\Sluggable\SlugOptions;
 
 class Product extends Model
 {
-    use HasFactory;
+    use SoftDeletes, HasSlug;
+    use HasFactory, HasSlug;
+
 
     protected $fillable = [
-        'name',
-        'slug',
-        'description',
-        'price',
-        'original_price',
-        'discount',
-        'image',
-        'category_id',
-        'stock',
-        'featured',
-        'status' // 'active', 'inactive'
+        'name', 'slug', 'price', 'stock_quantity', 'category_id', 
+        'type', 'brand', 'specifications', 'short_description', 
+        'full_description', 'original_price', 'discount_percentage', 
+        'status', 'warranty_months', 'is_featured', 
+        'is_new_arrival', 'images', 'technical_details', 
+        'tags', 'average_rating', 'total_reviews', 
+        'weight', 'shipping_details'
     ];
 
     protected $casts = [
-        'price' => 'decimal:2',
-        'original_price' => 'decimal:2',
-        'discount' => 'integer',
-        'featured' => 'boolean',
-        'stock' => 'integer'
+        'specifications' => 'array',
+        'images' => 'array',
+        'tags' => 'array',
+        'shipping_details' => 'array',
+        'is_featured' => 'boolean',
+        'is_new_arrival' => 'boolean'
     ];
 
-    // Kapcsolat a kategóriával
+    // Slug generálás automatikusan
+
+    /**
+     * A slug opcióinak beállítása.
+     */
+    public function getSlugOptions(): SlugOptions
+    {
+        return SlugOptions::create()
+            ->generateSlugsFrom('name') // Ezt a mezőt használja a slug generálásához
+            ->saveSlugsTo('slug');     // Ebbe a mezőbe menti a slugot
+    }
+
+    // Kategória kapcsolat
     public function category()
     {
         return $this->belongsTo(Category::class);
     }
 
-    // Ár számítás kedvezménnyel
-    public function getDiscountedPriceAttribute()
+    // Aktuális ár kalkuláció
+    public function getCurrentPriceAttribute()
     {
-        if ($this->discount) {
-            return $this->price * (1 - $this->discount / 100);
-        }
-        return $this->price;
+        return $this->discount_percentage > 0 
+            ? $this->price * (1 - $this->discount_percentage / 100) 
+            : $this->price;
     }
 
-    // Készlet státusz
-    public function getStockStatusAttribute()
+    // Elérhetőség ellenőrzése
+    public function getIsAvailableAttribute()
     {
-        if ($this->stock > 10) {
-            return 'Raktáron';
-        } elseif ($this->stock > 0) {
-            return 'Utolsó darabok';
-        }
-        return 'Nincs raktáron';
+        return $this->stock_quantity > 0 && $this->status === 'Aktív';
+    }
+
+    // Képek első képének elérése
+    public function getMainImageAttribute()
+    {
+        return $this->images ? $this->images[0] : null;
     }
 }
