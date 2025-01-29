@@ -1,51 +1,47 @@
 @extends('layouts.admin')
 
 @section('content')
-<div class="container mx-auto py-6">
-    <h1 class="text-2xl font-bold mb-6">Termékek listája</h1>
-
-    <a href="{{ route('admin.products.create') }}" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-        Új termék hozzáadása
-    </a>
-
-    <table class="table-auto w-full mt-6 border-collapse border border-gray-300">
-        <thead>
-            <tr class="bg-gray-100">
-                <th class="border border-gray-300 px-4 py-2">Név</th>
-                <th class="border border-gray-300 px-4 py-2">Ár</th>
-                <th class="border border-gray-300 px-4 py-2">Raktáron</th>
-                <th class="border border-gray-300 px-4 py-2">Típus</th>
-                <th class="border border-gray-300 px-4 py-2">Kategória</th>
-                <th class="border border-gray-300 px-4 py-2">Műveletek</th>
-            </tr>
-        </thead>
-        <tbody>
-            @forelse ($products as $product)
+<div class="container mt-5">
+    <div class="card shadow-lg p-4 bg-white rounded-lg">
+        <h2 class="text-xl font-semibold text-gray-700 mb-4">Termékek kezelése</h2>
+        <a href="{{ route('admin.products.create') }}" class="btn btn-primary mb-3">Új termék hozzáadása</a>
+        
+        <table class="table table-hover">
+            <thead class="bg-blue-500 text-white">
                 <tr>
-                    <td class="border border-gray-300 px-4 py-2">{{ $product->name }}</td>
-                    <td class="border border-gray-300 px-4 py-2">{{ $product->price }} Ft</td>
-                    <td class="border border-gray-300 px-4 py-2">{{ $product->stock_quantity }}</td>
-                    <td class="border border-gray-300 px-4 py-2">{{ $product->type }}</td>
-                    <td class="border border-gray-300 px-4 py-2">{{ $product->category->name }}</td>
-                    <td class="border border-gray-300 px-4 py-2">
-                        <a href="{{ route('admin.products.edit', $product->id) }}" class="text-blue-500">Szerkesztés</a> | 
-                        <form action="{{ route('admin.products.destroy', $product->id) }}" method="POST" class="inline">
+                    <th>ID</th>
+                    <th>Név</th>
+                    <th>Ár</th>
+                    <th>Kategória</th>
+                    <th>Állapot</th>
+                    <th>Műveletek</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($products as $product)
+                <tr>
+                    <td>{{ $product->id }}</td>
+                    <td>{{ $product->name }}</td>
+                    <td>{{ number_format($product->price, 2) }} Ft</td>
+                    <td>{{ $product->category->name ?? 'N/A' }}</td>
+                    <td class="{{ $product->status == 'Aktív' ? 'text-green-500 font-bold' : 'text-red-500 font-bold' }}">{{ $product->status }}</td>
+                    <td>
+                        <a href="{{ route('admin.products.edit', $product->id) }}" class="btn btn-warning btn-sm">Szerkesztés</a>
+                        <form action="{{ route('admin.products.destroy', $product->id) }}" method="POST" style="display:inline;">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="text-red-500" onclick="return confirm('Biztosan törölni szeretnéd?')">Törlés</button>
+                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Biztosan törölni szeretnéd?')">Törlés</button>
                         </form>
                     </td>
                 </tr>
-            @empty
-                <tr>
-                    <td colspan="6" class="text-center py-4">Nincs elérhető termék.</td>
-                </tr>
-            @endforelse
-        </tbody>
-    </table>
+                @endforeach
+            </tbody>
+        </table>
 
-    <div class="mt-4">
-        {{ $products->links() }}
+        {{ $products->links() }} <!-- Lapozás -->
     </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 @endsection

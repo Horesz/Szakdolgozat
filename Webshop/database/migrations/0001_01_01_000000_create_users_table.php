@@ -23,7 +23,7 @@ class CreateUsersTable extends Migration
             $table->string('address_additional')->nullable(); // for house number, floor, etc.
 
             $table->string('password');
-            $table->enum('role', ['user', 'admin'])->default('user');
+            $table->enum('role', ['user', 'admin', 'munkatars'])->default('user');
             $table->boolean('is_active')->default(true);
             $table->timestamp('email_verified_at')->nullable();
             $table->rememberToken();

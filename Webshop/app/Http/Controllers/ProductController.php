@@ -4,82 +4,34 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use App\Models\Category;
+use App\Models\ProductImage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class ProductController extends Controller
 {
-    // Összes termék listázása
-    public function index(Request $request)
+    /**
+     * Termékek listázása (Admin)
+     */
+    public function index()
     {
-        // Alapértelmezett szűrési és rendezési lehetőségek
-        $query = Product::query();
-
-        // Kategória szerinti szűrés
-        if ($request->has('category')) {
-            $query->whereHas('category', function($q) use ($request) {
-                $q->where('slug', $request->input('category'));
-            });
-        }
-
-        // Típus szerinti szűrés
-        if ($request->has('type')) {
-            $query->where('type', $request->input('type'));
-        }
-
-        // Ár szerinti rendezés
-        if ($request->has('sort')) {
-            switch($request->input('sort')) {
-                case 'price_asc':
-                    $query->orderBy('price', 'asc');
-                    break;
-                case 'price_desc':
-                    $query->orderBy('price', 'desc');
-                    break;
-                case 'newest':
-                    $query->orderBy('created_at', 'desc');
-                    break;
-            }
-        }
-
-        $products = $query->paginate(12);
-
-        $categories = Category::all();
-        $types = Product::distinct('type')->pluck('type');
-
-        return view('products.index', [
-            'products' => $products,
-            'categories' => $categories,
-            'types' => $types
-        ]);
+        $products = Product::latest()->paginate(10);
+        return view('layouts.admin.products.index', compact('products'));
     }
 
-    // Egyedi termék megjelenítése
-    public function show($slug)
-    {
-        $product = Product::where('slug', $slug)->firstOrFail();
-        
-        // Kapcsolódó termékek (pl. ugyanabból a kategóriából)
-        $relatedProducts = Product::where('category_id', $product->category_id)
-            ->where('id', '!=', $product->id)
-            ->limit(4)
-            ->get();
-
-        return view('products.show', [
-            'product' => $product,
-            'relatedProducts' => $relatedProducts
-        ]);
-    }
-
-    // Termék létrehozása (admin funkció)
+    /**
+     * Új termék létrehozásának űrlapja
+     */
     public function create()
     {
         $categories = Category::all();
-        return view('admin.products.create', compact('categories'));
+        return view('layouts.admin.products.create', compact('categories'));
     }
 
-    // Termék mentése
+    /**
+     * Új termék mentése
+     */
     public function store(Request $request)
     {
         $validatedData = $request->validate([
@@ -89,88 +41,120 @@ class ProductController extends Controller
             'stock_quantity' => 'required|integer|min:0',
             'type' => 'required|in:Konzol,Számítógép,Laptop,Perifériák,Játékszoftver,Kiegészítők',
             'brand' => 'required|max:100',
-            'specifications' => 'nullable|json',
-            'tags' => 'nullable|json',
             'short_description' => 'required',
             'full_description' => 'required',
+            'original_price' => 'nullable|numeric|min:0',
+            'discount_percentage' => 'nullable|integer|min:0|max:100',
+            'status' => 'required|in:Aktív,Inaktív,Hamarosan érkezik,Elfogyott',
+            'warranty_months' => 'nullable|integer|min:0',
+            'is_featured' => 'boolean',
+            'is_new_arrival' => 'boolean',
             'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-
+            'specifications' => 'nullable|json',
+            'tags' => 'nullable|json',
+            'weight' => 'nullable|numeric|min:0',
+            'shipping_details' => 'nullable|json',
+            'meta_title' => 'nullable|string|max:255',
+            'meta_description' => 'nullable|string',
+            'meta_keywords' => 'nullable|string',
         ]);
-
-        // Képfeltöltés kezelése
-        $imageUrls = [];
-        if ($request->hasFile('images')) {
-            foreach ($request->file('images') as $image) {
-                $path = $image->store('products', 'public');
-                $imageUrls[] = Storage::url($path);
-            }
-        }
 
         // Termék létrehozása
         $product = Product::create([
-            'name' => $validatedData['name'],
-            'category_id' => $validatedData['category_id'],
-            'price' => $validatedData['price'],
-            'stock_quantity' => $validatedData['stock_quantity'],
-            'type' => $validatedData['type'],
-            'brand' => $validatedData['brand'],
-            'short_description' => $validatedData['short_description'],
-            'full_description' => $validatedData['full_description'],
-            'images' => $imageUrls,
-            'specifications' => $request->input('specifications', []),
-            'tags' => $request->input('tags', [])
+            ...$validatedData,
+            'slug' => Str::slug($validatedData['name']),
         ]);
 
+        // Képek feltöltése és mentése
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $index => $image) {
+                $path = $image->store('products', 'public');
+                ProductImage::create([
+                    'product_id' => $product->id,
+                    'image_path' => Storage::url($path),
+                    'is_primary' => $index === 0, // Az első kép legyen az elsődleges
+                ]);
+            }
+        }
+
         return redirect()->route('admin.products.index')
-            ->with('success', 'Termék sikeresen létrehozva');
+            ->with('success', 'Termék sikeresen létrehozva!');
     }
 
-    // Termék szerkesztése
+    /**
+     * Termék szerkesztési űrlap
+     */
     public function edit(Product $product)
     {
         $categories = Category::all();
-        return view('admin.products.edit', [
-            'product' => $product,
-            'categories' => $categories
-        ]);
+        return view('layouts.admin.products.edit', compact('product', 'categories'));
     }
 
-    // Termék frissítése
+    /**
+     * Termék frissítése
+     */
     public function update(Request $request, Product $product)
     {
         $validatedData = $request->validate([
-            // Hasonló validációs szabályok, mint a store metódusban
-
+            'name' => 'required|max:255|unique:products,name,' . $product->id,
+            'category_id' => 'required|exists:categories,id',
+            'price' => 'required|numeric|min:0',
+            'stock_quantity' => 'required|integer|min:0',
+            'type' => 'required|in:Konzol,Számítógép,Laptop,Perifériák,Játékszoftver,Kiegészítők',
+            'brand' => 'required|max:100',
+            'short_description' => 'required',
+            'full_description' => 'required',
+            'original_price' => 'nullable|numeric|min:0',
+            'discount_percentage' => 'nullable|integer|min:0|max:100',
+            'status' => 'required|in:Aktív,Inaktív,Hamarosan érkezik,Elfogyott',
+            'warranty_months' => 'nullable|integer|min:0',
+            'is_featured' => 'boolean',
+            'is_new_arrival' => 'boolean',
+            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'specifications' => 'nullable|json',
+            'tags' => 'nullable|json',
+            'weight' => 'nullable|numeric|min:0',
+            'shipping_details' => 'nullable|json',
+            'meta_title' => 'nullable|string|max:255',
+            'meta_description' => 'nullable|string',
+            'meta_keywords' => 'nullable|string',
         ]);
 
+        // Termék frissítése
         $product->update($validatedData);
 
+        // Képek frissítése
+        if ($request->hasFile('images')) {
+            // Régi képek törlése
+            ProductImage::where('product_id', $product->id)->delete();
+
+            // Új képek feltöltése
+            foreach ($request->file('images') as $index => $image) {
+                $path = $image->store('products', 'public');
+                ProductImage::create([
+                    'product_id' => $product->id,
+                    'image_path' => Storage::url($path),
+                    'is_primary' => $index === 0,
+                ]);
+            }
+        }
+
         return redirect()->route('admin.products.index')
-            ->with('success', 'Termék sikeresen frissítve');
+            ->with('success', 'Termék sikeresen frissítve!');
     }
 
-    // Termék törlése
+    /**
+     * Termék törlése
+     */
     public function destroy(Product $product)
     {
+        // Képek törlése
+        ProductImage::where('product_id', $product->id)->delete();
+
+        // Termék törlése
         $product->delete();
 
         return redirect()->route('admin.products.index')
-            ->with('success', 'Termék sikeresen törölve');
-    }
-
-    // Termékek keresése
-    public function search(Request $request)
-    {
-        $query = $request->input('query');
-
-        $products = Product::where('name', 'LIKE', "%{$query}%")
-            ->orWhere('brand', 'LIKE', "%{$query}%")
-            ->orWhere('short_description', 'LIKE', "%{$query}%")
-            ->paginate(12);
-
-        return view('products.search', [
-            'products' => $products,
-            'query' => $query
-        ]);
+            ->with('success', 'Termék sikeresen törölve!');
     }
 }

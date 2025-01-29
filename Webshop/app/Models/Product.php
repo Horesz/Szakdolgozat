@@ -6,67 +6,111 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Product extends Model
 {
-    use SoftDeletes, HasSlug;
-    use HasFactory, HasSlug;
-
+    use SoftDeletes, HasSlug, HasFactory;
 
     protected $fillable = [
-        'name', 'slug', 'price', 'stock_quantity', 'category_id', 
-        'type', 'brand', 'specifications', 'short_description', 
-        'full_description', 'original_price', 'discount_percentage', 
-        'status', 'warranty_months', 'is_featured', 
-        'is_new_arrival', 'images', 'technical_details', 
-        'tags', 'average_rating', 'total_reviews', 
-        'weight', 'shipping_details'
+        'name', 'slug', 'price', 'stock_quantity', 'category_id',
+        'type', 'brand', 'specifications', 'short_description',
+        'full_description', 'original_price', 'discount_percentage',
+        'status', 'warranty_months', 'is_featured', 'is_new_arrival',
+        'technical_details', 'tags', 'average_rating', 'total_reviews',
+        'weight', 'shipping_details', 'meta_title', 'meta_description',
+        'meta_keywords'
     ];
 
     protected $casts = [
         'specifications' => 'array',
-        'images' => 'array',
         'tags' => 'array',
         'shipping_details' => 'array',
         'is_featured' => 'boolean',
         'is_new_arrival' => 'boolean'
     ];
 
-    // Slug generálás automatikusan
-
     /**
-     * A slug opcióinak beállítása.
+     * Slug beállítása automatikus generáláshoz.
      */
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()
-            ->generateSlugsFrom('name') // Ezt a mezőt használja a slug generálásához
-            ->saveSlugsTo('slug');     // Ebbe a mezőbe menti a slugot
+            ->generateSlugsFrom('name')
+            ->saveSlugsTo('slug');
     }
 
-    // Kategória kapcsolat
+    /**
+     * Kapcsolat a kategóriákkal.
+     */
     public function category()
     {
         return $this->belongsTo(Category::class);
     }
 
-    // Aktuális ár kalkuláció
+    /**
+     * Kapcsolat a termékképekkel.
+     */
+    public function images()
+    {
+        return $this->hasMany(ProductImage::class);
+    }
+
+    /**
+     * Kapcsolat az értékelésekkel.
+     */
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
+    }
+
+    /**
+     * Kapcsolat az akciós árakkal.
+     */
+    public function discounts()
+    {
+        return $this->hasMany(Discount::class);
+    }
+
+    /**
+     * Kapcsolat a szállítási lehetőségekkel.
+     */
+    public function shippingOptions()
+    {
+        return $this->hasMany(ShippingOption::class);
+    }
+
+    /**
+     * Aktuális ár kiszámítása (kedvezménnyel vagy anélkül).
+     */
     public function getCurrentPriceAttribute()
     {
-        return $this->discount_percentage > 0 
-            ? $this->price * (1 - $this->discount_percentage / 100) 
+        return $this->discount_percentage > 0
+            ? round($this->price * (1 - $this->discount_percentage / 100), 2)
             : $this->price;
     }
 
-    // Elérhetőség ellenőrzése
+    /**
+     * Elérhetőség ellenőrzése.
+     */
     public function getIsAvailableAttribute()
     {
         return $this->stock_quantity > 0 && $this->status === 'Aktív';
     }
 
-    // Képek első képének elérése
+    /**
+     * Fő termékkép visszaadása (ha van).
+     */
     public function getMainImageAttribute()
     {
-        return $this->images ? $this->images[0] : null;
+        return $this->images()->where('is_primary', true)->first()->image_path ?? null;
+    }
+
+    /**
+     * Átlagos értékelés lekérése a vélemények alapján.
+     */
+    public function getAverageRatingAttribute()
+    {
+        return round($this->reviews()->avg('rating'), 1) ?? 0;
     }
 }

@@ -10,7 +10,7 @@ class HomeController extends Controller
     public function index()
     {
         // Kiemelt termékek lekérése az adatbázisból
-        $featuredProducts = Product::where('featured', true)
+        $featuredProducts = Product::where('is_featured', true)
             ->take(8)
             ->get();
 

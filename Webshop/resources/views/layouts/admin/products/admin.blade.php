@@ -6,11 +6,13 @@
     <title>Admin Panel</title>
     <!-- Bootstrap CSS -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
 </head>
 <body>
 
     <!-- Sidebar és navigációs menü -->
     <div class="container mt-4">
+        @extends('layouts.navigation')
         @yield('content')
     </div>
 

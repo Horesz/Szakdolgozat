@@ -51,7 +51,6 @@ class RegisteredUserController extends Controller
                     ->letters()
                     ->mixedCase()
                     ->numbers()
-                    ->symbols()
             ]
         ]);
 

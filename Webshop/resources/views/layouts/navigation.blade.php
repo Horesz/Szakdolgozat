@@ -84,22 +84,18 @@
                 @else
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="fas fa-user me-1"></i> {{ Auth::user()->name }}
+                        <i class="fas fa-user me-1"></i> {{ Auth::user()->firstname }}
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                        @if(Auth::user()->is_admin) 
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->is('admin/products') ? 'active' : '' }}" href="/admin/products">
-                                <i class="fas fa-boxes me-1"></i> Termékek kezelése
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->is('admin/users') ? 'active' : '' }}" href="/admin/users">
-                                <i class="fas fa-users me-1"></i> Felhasználók kezelése
-                            </a>
-                        </li>
+                        @if(Auth::user()->role == 'admin') 
+                            <a href="{{ route('admin.products.index') }}" class="dropdown-item">Termékek kezelése</a>
+                            <a href="{{ route('admin.products.create') }}" class="dropdown-item">Új termék hozzáadása</a>
                         @endif
-                        <li><a class="dropdown-item" href="{{ route('dashboard') }}">Profil</a></li> <!-- Itt a profil edit route -->
+                        @if(Auth::user()->role == 'munkatars') 
+                            <a href="/munkatars/oldal1" class="dropdown-item">Munkatárs oldal 1</a>
+                            <a href="/munkatars/oldal2" class="dropdown-item">Munkatárs oldal 2</a>
+                        @endif
+                        <li><a class="dropdown-item" href="{{ route('dashboard') }}">Profil</a></li>
                         <li><a class="dropdown-item" href="/orders">Rendeléseim</a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li>
@@ -110,6 +106,7 @@
                         </li>
                     </ul>
                 </li>
+                
             @endguest
             </ul>
         </div>

@@ -12,6 +12,7 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\NewsletterController;
 use Illuminate\Support\Facades\Route;
 
+
 // Főoldal
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
@@ -39,31 +40,18 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/orders', [OrderController::class, 'index'])->name('orders');
 });
 
-// Admin útvonalak
-Route::middleware(['auth', 'is_admin'])->prefix('admin')->group(function () {
-    // Termék kezelés
-    
-    // Felhasználó kezelés
-    Route::prefix('users')->group(function () {
-        Route::get('/', [AdminController::class, 'index'])->name('admin.users.index');
-        Route::get('/{user}/edit', [AdminController::class, 'edit'])->name('admin.users.edit');
-        Route::put('/{user}', [AdminController::class, 'update'])->name('admin.users.update');
-        Route::delete('/{user}', [AdminController::class, 'destroy'])->name('admin.users.destroy');
-    });
-});
-Route::get('/products', [ProductController::class, 'index'])->name('products.index');
-Route::get('/product/{slug}', [ProductController::class, 'show'])->name('products.show');
-Route::get('/search', [ProductController::class, 'search'])->name('products.search');
 
 // Admin routes (middleware-rel védve)
-Route::middleware(['auth', 'admin'])->group(function () {
-    Route::get('/admin/products', [ProductController::class, 'index'])->name('admin.products.index');
-    Route::get('/admin/products/create', [ProductController::class, 'create'])->name('admin.products.create');
-    Route::post('/admin/products', [ProductController::class, 'store'])->name('admin.products.store');
-    Route::get('/admin/products/{product}/edit', [ProductController::class, 'edit'])->name('admin.products.edit');
-    Route::put('/admin/products/{product}', [ProductController::class, 'update'])->name('admin.products.update');
-    Route::delete('/admin/products/{product}', [ProductController::class, 'destroy'])->name('admin.products.destroy');
+
+Route::prefix('admin')->middleware(['auth'])->group(function () {
+    Route::get('/products', [ProductController::class, 'index'])->name('admin.products.index');
+    Route::get('/products/create', [ProductController::class, 'create'])->name('admin.products.create');
+    Route::post('/products', [ProductController::class, 'store'])->name('admin.products.store');
+    Route::get('/products/{product}/edit', [ProductController::class, 'edit'])->name('admin.products.edit');
+    Route::put('/products/{product}', [ProductController::class, 'update'])->name('admin.products.update');
+    Route::delete('/products/{product}', [ProductController::class, 'destroy'])->name('admin.products.destroy');
 });
+
 
 // Auth routes
 require __DIR__.'/auth.php';

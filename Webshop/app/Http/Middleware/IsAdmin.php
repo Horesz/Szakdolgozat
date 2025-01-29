@@ -4,23 +4,21 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth; // Importáld az Auth osztályt
-use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Support\Facades\Auth;
 
 class IsAdmin
 {
     /**
      * Handle an incoming request.
-     *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
-    public function handle(Request $request, Closure $next): Response
+    public function handle(Request $request, Closure $next)
     {
-        // Ellenőrizzük, hogy a felhasználó be van-e jelentkezve, és admin-e
-        if (!Auth::check() || !Auth::user()->is_admin) {
-            abort(403, 'Nincs jogosultságod ehhez az oldalhoz!');
+        // Ellenőrizzük, hogy a felhasználó be van-e jelentkezve és admin-e
+        if (Auth::check() && Auth::user()->role === 'admin') {
+            return $next($request);
         }
 
-        return $next($request);
+        // Ha nem admin, visszairányítás a főoldalra egy hibaüzenettel
+        return redirect('/')->with('error', 'Nincs jogosultságod az admin oldalhoz!');
     }
 }
