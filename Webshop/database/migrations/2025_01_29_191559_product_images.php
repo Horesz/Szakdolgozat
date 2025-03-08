@@ -16,8 +16,9 @@ return new class extends Migration
         });
     }
 
-    public function down(): void
-    {
-        Schema::dropIfExists('product_images');
-    }
+    public function down()
+{
+    Schema::dropIfExists('product_images');
+}
+
 };

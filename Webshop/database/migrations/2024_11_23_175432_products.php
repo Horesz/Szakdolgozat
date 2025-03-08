@@ -9,7 +9,7 @@ return new class extends Migration
     public function up()
     {
         Schema::create('products', function (Blueprint $table) {
-            $table->id();
+            $table->unsignedBigInteger('id')->autoIncrement();
             
             // Alapvető termék információk
             $table->string('name')->unique();
