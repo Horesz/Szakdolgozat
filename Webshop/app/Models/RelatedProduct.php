@@ -20,3 +20,4 @@ class RelatedProduct extends Model
         return $this->belongsTo(Product::class, 'related_product_id');
     }
 }
+

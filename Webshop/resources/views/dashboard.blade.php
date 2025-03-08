@@ -1,3 +1,24 @@
+<head>
+    <style>
+      html, body {
+      height: 100%;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+  }
+  
+  main {
+      flex: 1; /* Kitölti a rendelkezésre álló helyet */
+  }
+  
+  footer {
+      margin-top: auto; /* Az oldal aljára helyezi a footert */
+  }
+  
+    </style>
+  </head>
+  
+
 @extends('layouts.app')
 
 @section('title', 'GamerShop - Dashboard')

@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
@@ -14,12 +13,12 @@ class Product extends Model
 
     protected $fillable = [
         'name', 'slug', 'price', 'stock_quantity', 'category_id',
-        'type', 'brand', 'specifications', 'short_description',
-        'full_description', 'original_price', 'discount_percentage',
-        'status', 'warranty_months', 'is_featured', 'is_new_arrival',
-        'technical_details', 'tags', 'average_rating', 'total_reviews',
-        'weight', 'shipping_details', 'meta_title', 'meta_description',
-        'meta_keywords'
+        'type', 'brand', 'short_description', 'full_description',
+        'original_price', 'discount_percentage', 'status', 
+        'warranty_months', 'is_featured', 'is_new_arrival', 
+        'technical_details', 'tags', 'average_rating', 
+        'total_reviews', 'weight', 'shipping_details',
+        'meta_title', 'meta_description', 'meta_keywords'
     ];
 
     protected $casts = [
@@ -73,11 +72,11 @@ class Product extends Model
     }
 
     /**
-     * Kapcsolat a szállítási lehetőségekkel.
+     * Kapcsolat a kapcsolódó termékekkel.
      */
-    public function shippingOptions()
+    public function relatedProducts()
     {
-        return $this->hasMany(ShippingOption::class);
+        return $this->hasMany(RelatedProduct::class, 'product_id');
     }
 
     /**

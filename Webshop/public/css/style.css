@@ -11,6 +11,18 @@
 body {
     background-color: var(--light-lila);
     color: var(--text-dark);
+    height: 100%;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+  flex: 1; /* Kitölti a rendelkezésre álló helyet */
+}
+
+footer {
+  margin-top: auto; /* Az oldal aljára helyezi a footert */
 }
 
 /* Navigációs menü */

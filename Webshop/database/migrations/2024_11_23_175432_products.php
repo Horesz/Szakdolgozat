@@ -18,8 +18,8 @@ return new class extends Migration
             $table->integer('stock_quantity')->default(0);
             
             // Kategória kapcsolat
-            $table->foreignId('category_id')->constrained('categories');
-            
+            $table->foreignId('category_id')->constrained('categories')->onDelete('cascade');
+
             // Termék típusok
             $table->enum('type', [
                 'Konzol', 

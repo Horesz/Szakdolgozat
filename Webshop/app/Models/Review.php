@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -19,5 +18,13 @@ class Review extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Scope az átlagos értékeléshez
+     */
+    public function scopeAverageRating($query)
+    {
+        return $query->avg('rating');
     }
 }
