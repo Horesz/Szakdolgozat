@@ -17,6 +17,7 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 // ✅ Kategóriák listázása (ha van CategoryController)
 Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
 Route::get('/products', [ProductController::class, 'index'])->name('products');
+Route::get('/categories/{slug}', [CategoryController::class, 'show'])->name('categories.show');
 
 // ✅ Publikus kategóriaoldalak (ProductController kezeli)
 Route::get('/category/gaming-pc', [ProductController::class, 'gamingPc'])->name('category.gaming-pc');

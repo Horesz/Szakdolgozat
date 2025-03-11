@@ -14,19 +14,27 @@ class CategorySeeder extends Seeder
     public function run(): void
     {
         $categories = [
-            ['name' => 'Konzol'],
-            ['name' => 'Számítógép'],
-            ['name' => 'Laptop'],
-            ['name' => 'Perifériák'],
-            ['name' => 'Játékszoftver'],
-            ['name' => 'Kiegészítők'],
+            ['name' => 'consoles', 'image' => 'consoles.png'],
+            ['name' => 'Számítógép', 'image' => 'computer.png'],
+            ['name' => 'Laptop', 'image' => 'laptop.png'],
+            ['name' => 'Perifériák', 'image' => 'peripherals.png'],
+            ['name' => 'Játékszoftver', 'image' => 'games.png'],
+            ['name' => 'Monitor', 'image' => 'monitor.png'],
+            ['name' => 'Egér', 'image' => 'mouse.png'],
+            ['name' => 'Billentyűzet', 'image' => 'keyboard.png'],
+            ['name' => 'Fejhallgató', 'image' => 'Headphones.png'],
+            ['name' => 'Fülhallgató', 'image' => 'earbuds.png'],
+            ['name' => 'Videókártya', 'image' => 'gpu.png'],
+            ['name' => 'Memória', 'image' => 'memory.png'],
+            ['name' => 'telefon', 'image' => 'telefon.png'],
         ];
 
         foreach ($categories as $category) {
             Category::firstOrCreate([
                 'name' => $category['name']
             ], [
-                'slug' => Str::slug($category['name']) // Automatikusan generálunk egy slug értéket
+                'slug' => Str::slug($category['name']), // Automatikusan generálunk egy slug értéket
+                'image' => $category['image'] // Hozzáadjuk a képet
             ]);
         }
     }

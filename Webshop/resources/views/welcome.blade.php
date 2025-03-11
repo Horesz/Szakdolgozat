@@ -27,53 +27,48 @@
             </div>
         </div>
     </div>
-
-    {{-- Kategóriák Section --}}
-    <section class="py-5 bg-light category-section">
-        <div class="container">
-            <div class="section-header text-center mb-5">
-                <h6 class="text-primary text-uppercase fw-bold">Böngéssz kategóriák szerint</h6>
-                <h2 class="display-6 fw-bold">Népszerű kategóriák</h2>
-                <div class="separator mx-auto my-3"></div>
-            </div>
-            <div class="row g-4">
-                {{-- @php
-                    $categories = [
-                        ['name' => 'Gaming PC-k', 'image' => 'gamerpcCategoryimage.png', 'route' => 'category.consoles'],
-                        ['name' => 'Perifériák', 'image' => 'peripherals.png', 'route' => 'category.consoles'],
-                        ['name' => 'Alkatrészek', 'image' => 'alkatreszek.png', 'route' => 'category.consoles'],
-                        ['name' => 'Kiegészítők', 'image' => 'accessories.png', 'route' => 'category.consoles'],
-                        ['name' => 'Játékok', 'image' => 'games.png', 'route' => 'category.consoles'],
-                        ['name' => 'Konzolok', 'image' => 'consoles.png', 'route' => 'category.consoles'],
-                        ['name' => 'Laptop', 'image' => 'laptop.png', 'route' => 'category.consoles'],
-                        ['name' => 'Telefon', 'image' => 'telefon.png', 'route' => 'category.consoles']
-                    ];
-                @endphp --}}
-
-                @if(isset($categories) && count($categories) > 0)
-    @foreach($categories as $category)
-        <div class="col-md-6 col-lg-3">
-            <div class="card h-100 border-0 shadow-sm category-card">
-                <div class="card-img-wrapper">
-                    <img src="{{ asset('images/categories/' . $category->image) }}" 
-                         class="card-img-top" alt="{{ $category->name }}">
-                    <div class="card-overlay">
-                        <a href="{{ route('category.consoles') }}" class="btn btn-primary">Megnézem</a>
+{{-- Kategóriák Section --}}
+<section class="py-5 bg-light category-section">
+    <div class="container">
+        <div class="section-header text-center mb-5">
+            <h6 class="text-primary text-uppercase fw-bold">Böngéssz kategóriák szerint</h6>
+            <h2 class="display-6 fw-bold">Népszerű kategóriák</h2>
+            <div class="separator mx-auto my-3"></div>
+        </div>
+        <div class="row g-4">
+            @if(isset($categories) && count($categories) > 0)
+                @foreach($categories as $category)
+                    <div class="col-md-6 col-lg-3">
+                        <div class="card h-100 border-0 shadow-sm category-card">
+                            <div class="card-img-wrapper">
+                                @php
+                                    $imageName = strtolower(str_replace(' ', '', Str::slug($category->name))) . '.png';
+                                    $imagePath = 'images/categories/' . $imageName;
+                                    $defaultImage = 'images/categories/default.png';
+                                @endphp
+                                
+                                @if(file_exists(public_path($imagePath)))
+                                    <img src="{{ asset($imagePath) }}" class="card-img-top" alt="{{ $category->name }}">
+                                @else
+                                    <img src="{{ asset($defaultImage) }}" class="card-img-top" alt="{{ $category->name }}">
+                                @endif
+                                
+                                <div class="card-overlay">
+                                    <a href="{{ route('categories.show', $category->slug) }}" class="btn btn-primary">Megnézem</a>
+                                </div>
+                            </div>
+                            <div class="card-body text-center">
+                                <h5 class="card-title fw-bold">{{ $category->name }}</h5>
+                            </div>
+                        </div>
                     </div>
-                </div>
-                <div class="card-body text-center">
-                    <h5 class="card-title fw-bold">{{ $category->name }}</h5>
-                </div>
-            </div>
+                @endforeach
+            @else
+                <p class="text-center">Jelenleg nincs elérhető kategória.</p>
+            @endif
         </div>
-    @endforeach
-@else
-    <p class="text-center">Jelenleg nincs elérhető kategória.</p>
-@endif
-
-            </div>
-        </div>
-    </section>
+    </div>
+</section>
     
     {{-- Kiemelt termékek --}}
     <section class="py-5 featured-products">
