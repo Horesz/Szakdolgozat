@@ -124,7 +124,11 @@
                     <div class="col-md-6 col-lg-3">
                         <div class="card h-100 border-0 shadow-sm">
                             <div class="position-relative">
-                                <img src="{{ asset($product->image) }}" class="card-img-top" alt="{{ $product->name }}">
+                                @if($product->images()->exists())
+                                    <img src="{{ asset($product->images()->where('is_primary', 1)->first()->image_path) }}" alt="{{ $product->name }}">
+                                @else
+                                    <img src="{{ asset('images/no-image.jpg') }}" alt="No Image">
+                                @endif
                                 @if($product->discount)
                                     <div class="position-absolute top-0 end-0 bg-danger text-white px-2 py-1 m-2 rounded">
                                         -{{ $product->discount }}%

@@ -16,17 +16,23 @@ class Product extends Model
         'type', 'brand', 'short_description', 'full_description',
         'original_price', 'discount_percentage', 'status', 
         'warranty_months', 'is_featured', 'is_new_arrival', 
-        'technical_details', 'tags', 'average_rating', 
+        'specifications', 'tags', 'average_rating', 
         'total_reviews', 'weight', 'shipping_details',
         'meta_title', 'meta_description', 'meta_keywords'
     ];
-
+    
     protected $casts = [
+        'price' => 'float',
+        'original_price' => 'float',
         'specifications' => 'array',
         'tags' => 'array',
         'shipping_details' => 'array',
         'is_featured' => 'boolean',
-        'is_new_arrival' => 'boolean'
+        'is_new_arrival' => 'boolean',
+        'discount_percentage' => 'integer',
+        'stock_quantity' => 'integer',
+        'warranty_months' => 'integer',
+        'weight' => 'float',
     ];
 
     /**
