@@ -1,11 +1,11 @@
-@extends('layouts.admin')
+@extends('layouts.app')
 
 @section('content')
 <div class="container-fluid px-4 py-5">
     <div class="card shadow-lg border-0 rounded-lg">
         <div class="card-header bg-gradient-primary text-white">
             <div class="d-flex justify-content-between align-items-center">
-                <h2 class="m-0 fs-4">Új termék hozzáadása</h2>
+                <h2 class="m-0 text-black fs-4">Új termék hozzáadása</h2>
                 <a href="{{ route('admin.products.index') }}" class="btn btn-light">
                     <i class="fas fa-arrow-left me-2"></i>Vissza a termékekhez
                 </a>

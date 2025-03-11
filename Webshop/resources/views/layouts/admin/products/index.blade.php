@@ -1,11 +1,12 @@
-@extends('layouts.admin')
+@extends('layouts.app')
+
 
 @section('content')
 <div class="container-fluid px-4 py-5">
     <div class="card shadow-lg border-0 rounded-lg">
         <div class="card-header bg-gradient-primary text-white">
             <div class="d-flex justify-content-between align-items-center">
-                <h2 class="m-0 fs-4">Termékek kezelése</h2>
+                <h2 class="m-0 text-black fs-4">Termékek kezelése</h2>
                 <a href="{{ route('admin.products.create') }}" class="btn btn-light">
                     <i class="fas fa-plus-circle me-2"></i>Új termék
                 </a>
@@ -41,23 +42,14 @@
                                     <div class="d-flex align-items-center">
                                         <!-- Biztonságos ellenőrzés a képekhez -->
                                         @php
-                                            $primaryImage = null;
-                                            if (method_exists($product, 'images') && $product->images) {
-                                                $primaryImage = $product->images()->where('is_primary', 1)->first();
-                                                if (!$primaryImage) {
-                                                    $primaryImage = $product->images()->first();
-                                                }
-                                            }
-                                        @endphp
-                                        
-                                        @if($primaryImage)
-                                            <img src="{{ $primaryImage->image_path }}" 
-                                                alt="{{ $product->name }}" class="me-3 rounded" style="width: 50px; height: 50px; object-fit: cover;">
-                                        @else
-                                            <div class="me-3 rounded bg-light d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
-                                                <i class="fas fa-image text-secondary"></i>
-                                            </div>
-                                        @endif
+                    // Biztonságos képellenőrzés
+                    $primaryImage = $product->images()->where('is_primary', 1)->first() ?? $product->images()->first();
+                    $imagePath = $primaryImage ? asset($primaryImage->image_path) : asset('images/default.jpg');
+                @endphp
+
+                <!-- Kép megjelenítése, ha van -->
+                <img src="{{ $imagePath }}" alt="{{ $product->name }}" class="img-thumbnail" style="width: 50px; height: 50px;">
+
                                         <div>
                                             <h6 class="mb-0">{{ $product->name }}</h6>
                                             <small class="text-muted">{{ $product->brand }}</small>

@@ -43,7 +43,19 @@ class ProductController extends Controller
             
             $product = new Product();
             $product->name = $validatedData['name'];
-            $product->slug = Str::slug($validatedData['name']);
+            $slug = Str::slug($validatedData['name']);
+            $existingSlugs = Product::where('slug', 'like', $slug . '%')->pluck('slug')->toArray();
+
+            if (in_array($slug, $existingSlugs)) {
+                $count = 1;
+                while (in_array($slug . '-' . $count, $existingSlugs)) {
+                    $count++;
+                }
+                $slug = $slug . '-' . $count;
+            }
+
+            $product->slug = $slug;
+
             $product->category_id = (int) $validatedData['category_id'];
             $product->price = (float) $validatedData['price'];
             $product->stock_quantity = (int) $validatedData['stock_quantity'];

@@ -12,14 +12,22 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
     <!-- Saját CSS -->
+    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
     <link href="{{ asset('css/style.css') }}" rel="stylesheet">
     <link href="{{ asset('css/auth.css') }}" rel="stylesheet">
     <!-- favicon -->
 
     <link rel="icon" type="image/png" href="{{ asset('images/Gamershop.png') }}">
 
+    <style>body {
+            background-color: #f8f9fa;
+        }
+        .container {
+            max-width: 1200px;
+        }</style>
 </head>
 <body class="bg-light">
+    
     <!-- Navigációs menü -->
     @include('layouts.navigation')
 

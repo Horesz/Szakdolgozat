@@ -35,7 +35,7 @@
     @endif
     <!-- Profil kártya -->
     <div class="card mt-4">
-        <div class="card-header">Profilod</div>
+        <div class="card-header">Személyes adati: </div>
         <div class="card-body">
             <p><strong>Név:</strong> {{ $user->firstname }} {{ $user->lastname }}</p>
             <p><strong>Email:</strong> {{ $user->email }}</p>
@@ -56,7 +56,7 @@
             </p>
 
             <!-- Profil szerkesztés gomb -->
-            <a href="{{ route('profile.edit') }}" class="btn btn-primary">Profil szerkesztése</a>
+            <a href="{{ route('profile.edit') }}" class="btn text-white btn-primary">Profil szerkesztése</a>
         </div>
     </div>
 

@@ -21,10 +21,9 @@
 <body>
 
     <!-- Navigációs menü -->
-    @include('layouts.navigation')
+    @extends('layouts.app')
 
     <div class="container mt-4">
-        @yield('content')
     </div>
 
     <!-- Bootstrap JS -->
