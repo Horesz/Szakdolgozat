@@ -1,4 +1,5 @@
 <?php
+
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\DashboardController;
@@ -52,15 +53,28 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/orders', [OrderController::class, 'index'])->name('orders');
 });
 
-// ✅ Admin felület (csak admin felhasználóknak)
+// ✅ Admin felület (csak admin felhasználóknak) - itt csak a bejelentkezést ellenőrizzük
 Route::prefix('admin')->middleware(['auth'])->group(function () {
+    // Termék kezelés
     Route::get('/products', [ProductController::class, 'index'])->name('admin.products.index');
     Route::get('/products/create', [ProductController::class, 'create'])->name('admin.products.create');
     Route::post('/products', [ProductController::class, 'store'])->name('admin.products.store');
     Route::get('/products/{product}/edit', [ProductController::class, 'edit'])->name('admin.products.edit');
     Route::put('/products/{product}', [ProductController::class, 'update'])->name('admin.products.update');
     Route::delete('/products/{product}', [ProductController::class, 'destroy'])->name('admin.products.destroy');
+    
+    // Kategória kezelés - meglévő CategoryController-t használjuk
+    Route::get('/categories', [CategoryController::class, 'adminIndex'])->name('admin.categories.index');
+    Route::get('/categories/create', [CategoryController::class, 'create'])->name('admin.categories.create');
+    Route::post('/categories', [CategoryController::class, 'store'])->name('admin.categories.store');
+    Route::get('/categories/{category}/edit', [CategoryController::class, 'edit'])->name('admin.categories.edit');
+    Route::put('/categories/{category}', [CategoryController::class, 'update'])->name('admin.categories.update');
+    Route::delete('/categories/{category}', [CategoryController::class, 'destroy'])->name('admin.categories.destroy');
 });
+
+// routes/web.php - add hozzá
+Route::get('/products/browse', [ProductController::class, 'browse'])->name('products.browse');
+Route::get('/products/{product}', [ProductController::class, 'show'])->name('products.show');
 
 // ✅ Autentikációs útvonalak (Laravel Breeze/Fortify)
 require __DIR__.'/auth.php';

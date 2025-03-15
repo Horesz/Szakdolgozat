@@ -25,11 +25,9 @@
                         <i class="fas fa-list me-1"></i> Kategóriák
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="categoryDropdown">
-                        <li><a class="dropdown-item" href="/gaming-pc">Gaming PC-k</a></li>
-                        <li><a class="dropdown-item" href="/peripherals">Perifériák</a></li>
-                        <li><a class="dropdown-item" href="/components">Alkatrészek</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="/accessories">Kiegészítők</a></li>
+                        @foreach(\App\Models\Category::where('status', 'active')->get() as $category)
+                            <li><a class="dropdown-item" href="/category/{{ $category->slug }}">{{ $category->name }}</a></li>
+                        @endforeach
                     </ul>
                 </li>
                 <li class="nav-item">
@@ -67,9 +65,6 @@
                     </a>
                 </li>
 
-                {{-- Admin menü (csak szuperadminnak) --}}
-                
-
                 @guest
                     <li class="nav-item">
                         <a class="nav-link" href="/login">
@@ -88,20 +83,46 @@
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                         @if(Auth::user()->role == 'admin') 
-                            <a href="{{ route('admin.products.index') }}" class="dropdown-item">Termékek kezelése</a>
-                            <a href="{{ route('admin.products.create') }}" class="dropdown-item">Új termék hozzáadása</a>
+                            {{-- Admin menü - Termékek szekció --}}
+                            <li><span class="dropdown-header">Termékek</span></li>
+                            <li><a class="dropdown-item" href="{{ route('admin.products.index') }}">
+                                <i class="fas fa-box fa-fw me-1"></i> Termékek kezelése
+                            </a></li>
+                            <li><a class="dropdown-item" href="{{ route('admin.products.create') }}">
+                                <i class="fas fa-plus-circle fa-fw me-1"></i> Új termék hozzáadása
+                            </a></li>
+                            
+                            {{-- Admin menü - Kategóriák szekció --}}
+                            <li><hr class="dropdown-divider"></li>
+                            <li><span class="dropdown-header">Kategóriák</span></li>
+                            <li><a class="dropdown-item" href="{{ route('admin.categories.index') }}">
+                                <i class="fas fa-folder fa-fw me-1"></i> Kategóriák kezelése
+                            </a></li>
+                            <li><a class="dropdown-item" href="{{ route('admin.categories.create') }}">
+                                <i class="fas fa-folder-plus fa-fw me-1"></i> Új kategória hozzáadása
+                            </a></li>
+                            <li><hr class="dropdown-divider"></li>
                         @endif
+                        
                         @if(Auth::user()->role == 'munkatars') 
                             <a href="/munkatars/oldal1" class="dropdown-item">Munkatárs oldal 1</a>
                             <a href="/munkatars/oldal2" class="dropdown-item">Munkatárs oldal 2</a>
+                            <li><hr class="dropdown-divider"></li>
                         @endif
-                        <li><a class="dropdown-item" href="{{ route('dashboard') }}">Profil</a></li>
-                        <li><a class="dropdown-item" href="/orders">Rendeléseim</a></li>
+                        
+                        <li><a class="dropdown-item" href="{{ route('dashboard') }}">
+                            <i class="fas fa-user-circle fa-fw me-1"></i> Profil
+                        </a></li>
+                        <li><a class="dropdown-item" href="/orders">
+                            <i class="fas fa-shopping-bag fa-fw me-1"></i> Rendeléseim
+                        </a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li>
                             <form action="/logout" method="POST">
                                 @csrf
-                                <button type="submit" class="dropdown-item">Kijelentkezés</button>
+                                <button type="submit" class="dropdown-item">
+                                    <i class="fas fa-sign-out-alt fa-fw me-1"></i> Kijelentkezés
+                                </button>
                             </form>
                         </li>
                     </ul>

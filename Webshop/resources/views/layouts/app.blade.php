@@ -15,6 +15,7 @@
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
     <link href="{{ asset('css/style.css') }}" rel="stylesheet">
     <link href="{{ asset('css/auth.css') }}" rel="stylesheet">
+    @stack('styles')
     <!-- favicon -->
 
     <link rel="icon" type="image/png" href="{{ asset('images/Gamershop.png') }}">

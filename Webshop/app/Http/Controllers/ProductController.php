@@ -155,4 +155,65 @@ class ProductController extends Controller
         $product->delete();
         return redirect()->route('admin.products.index')->with('success', 'Termék sikeresen törölve!');
     }
+
+    // ProductController.php - browse metódus
+public function browse(Request $request)
+{
+    // Kategória szűrés
+    $categoryId = $request->input('category');
+    $query = Product::where('status', 'Aktív');
+    
+    if ($categoryId) {
+        $query->where('category_id', $categoryId);
+    }
+    
+    // Ár szűrés
+    $minPrice = $request->input('min_price');
+    $maxPrice = $request->input('max_price');
+    
+    if ($minPrice) {
+        $query->where('price', '>=', $minPrice);
+    }
+    
+    if ($maxPrice) {
+        $query->where('price', '<=', $maxPrice);
+    }
+    
+    // Rendezés
+    $sort = $request->input('sort', 'newest'); // alapértelmezett: legújabb
+    
+    switch ($sort) {
+        case 'price_low':
+            $query->orderBy('price', 'asc');
+            break;
+        case 'price_high':
+            $query->orderBy('price', 'desc');
+            break;
+        case 'name':
+            $query->orderBy('name', 'asc');
+            break;
+        case 'newest':
+        default:
+            $query->orderBy('created_at', 'desc');
+            break;
+    }
+    
+    // Keresés
+    $search = $request->input('search');
+    if ($search) {
+        $query->where(function($q) use ($search) {
+            $q->where('name', 'like', "%{$search}%")
+              ->orWhere('short_description', 'like', "%{$search}%")
+              ->orWhere('full_description', 'like', "%{$search}%");
+        });
+    }
+    
+    // Lapozás
+    $products = $query->paginate(12);
+    $categories = Category::where('status', 'active')->get();
+    
+    return view('products.browse', compact('products', 'categories'));
+}
+
+
 }

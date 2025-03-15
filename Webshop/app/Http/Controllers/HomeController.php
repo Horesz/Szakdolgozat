@@ -8,23 +8,35 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ProductController;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\File;
-
 use App\Models\Category;
-
-
-
 
 class HomeController extends Controller
 {
     public function index()
     {
         $product = Product::all();
+        
         // Kiemelt termékek lekérése az adatbázisból
         $featuredProducts = Product::where('is_featured', 1)->take(8)->get(); 
+        
+        // Legújabb termékek lekérése
+        $newArrivals = Product::where('is_new_arrival', true)
+            ->where('status', 'Aktív')
+            ->orderBy('created_at', 'desc')
+            ->take(8)
+            ->get();
+            
+        // Aktív kategóriák lekérése
         $categories = Category::where('status', 'active')->get();
         
         // Kategóriákhoz kép társítása
         foreach ($categories as $category) {
+            // Ha már van kép az adatbázisban, azt használjuk
+            if ($category->image) {
+                continue;
+            }
+            
+            // Ha nincs kép az adatbázisban, megpróbálunk találni a fájlrendszerben
             $slug = Str::slug($category->name);
             $possibleImages = [
                 $slug . '.png',
@@ -64,8 +76,7 @@ class HomeController extends Controller
             }
         }
 
-
-        return view('welcome', compact('product','categories','featuredProducts'))->with('success', 'Adatok betöltve');
-
+        return view('welcome', compact('product', 'categories', 'featuredProducts', 'newArrivals'))
+               ->with('success', 'Adatok betöltve');
     }
 }
