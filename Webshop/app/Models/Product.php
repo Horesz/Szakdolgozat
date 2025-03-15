@@ -27,6 +27,7 @@ class Product extends Model
         'specifications' => 'array',
         'tags' => 'array',
         'shipping_details' => 'array',
+        'technical_details' => 'array',
         'is_featured' => 'boolean',
         'is_new_arrival' => 'boolean',
         'discount_percentage' => 'integer',

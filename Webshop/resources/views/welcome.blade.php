@@ -10,7 +10,7 @@
                     <h1 class="display-4 fw-bold mb-4 text-gradient">Üdvözöllek a GamerShop-ban!</h1>
                     <p class="lead mb-4">Fedezd fel prémium gaming termékeinket és alakítsd ki a tökéletes setup-ot!</p>
                     <div class="d-flex gap-3">
-                        <a href="{{ route('category.gaming-pc') }}" class="btn btn-primary btn-lg">
+                        <a href="{{ route('products.browse') }}" class="btn btn-primary btn-lg">
                             <i class="fas fa-gamepad me-2"></i>Fedezd fel kínálatunkat
                         </a>
                         <a href="{{ route('deals') }}" class="btn btn-outline-light btn-lg">
@@ -87,7 +87,7 @@
         </div>
     </div>
 </section>
-{-- Új termékek szekció --}}
+{{-- Új termékek szekció --}}
 <section class="py-5 bg-gradient-dark text-white new-arrivals-section">
     <div class="container">
         <div class="section-header text-center mb-5">
@@ -115,18 +115,20 @@
                                     <i class="fas fa-bolt me-1"></i>ÚJ
                                 </div>
                                 
-                                @if($product->images()->exists())
-                                    <img src="{{ asset($product->images()->where('is_primary', 1)->first()->image_path) }}" 
-                                         class="card-img-top" alt="{{ $product->name }}">
-                                @else
-                                    <img src="{{ asset('images/no-image.jpg') }}" class="card-img-top" alt="No Image">
-                                @endif
+                                <!-- Kép linkként a termék oldalára -->
+                                <a href="{{ route('products.show', $product->id) }}" class="product-link">
+                                    @if($product->images()->exists())
+                                        <img src="{{ asset($product->images()->where('is_primary', 1)->first()->image_path) }}" 
+                                             class="card-img-top" alt="{{ $product->name }}">
+                                    @else
+                                        <img src="{{ asset('images/no-image.jpg') }}" class="card-img-top" alt="No Image">
+                                    @endif
+                                </a>
                                 
                                 <div class="product-actions">
-                                    <button class="btn btn-outline-light btn-sm quick-view-btn" 
-                                            data-product-id="{{ $product->id }}">
+                                    <a href="{{ route('products.show', $product->id) }}" class="btn btn-outline-light btn-sm">
                                         <i class="fas fa-eye"></i>
-                                    </button>
+                                    </a>
                                     <button class="btn btn-warning btn-sm add-to-cart" 
                                             data-product-id="{{ $product->id }}">
                                         <i class="fas fa-cart-plus"></i>
@@ -134,7 +136,12 @@
                                 </div>
                             </div>
                             <div class="card-body">
-                                <h5 class="card-title fw-bold product-name">{{ $product->name }}</h5>
+                                <!-- Név linkként a termék oldalára -->
+                                <h5 class="card-title fw-bold product-name">
+                                    <a href="{{ route('products.show', $product->id) }}" class="text-white product-title-link">
+                                        {{ $product->name }}
+                                    </a>
+                                </h5>
                                 <p class="card-text text-light small product-desc">{{ Str::limit($product->short_description, 60) }}</p>
                                 <div class="d-flex justify-content-between align-items-center mt-3">
                                     <div class="product-price">
@@ -184,23 +191,26 @@
                     <div class="col-md-6 col-lg-3">
                         <div class="card h-100 border-0 shadow-sm product-card">
                             <div class="position-relative product-img-wrapper">
-                                @if($product->images()->exists())
-                                    <img src="{{ asset($product->images()->where('is_primary', 1)->first()->image_path) }}" 
-                                         class="card-img-top" alt="{{ $product->name }}">
-                                @else
-                                    <img src="{{ asset('images/no-image.jpg') }}" 
-                                         class="card-img-top" alt="No Image">
-                                @endif
-                                @if($product->discount)
+                                <!-- Kép linkként a termék oldalára -->
+                                <a href="{{ route('products.show', $product->id) }}" class="product-link">
+                                    @if($product->images()->exists())
+                                        <img src="{{ asset($product->images()->where('is_primary', 1)->first()->image_path) }}" 
+                                             class="card-img-top" alt="{{ $product->name }}">
+                                    @else
+                                        <img src="{{ asset('images/no-image.jpg') }}" 
+                                             class="card-img-top" alt="No Image">
+                                    @endif
+                                </a>
+                                
+                                @if(isset($product->discount_percentage) && $product->discount_percentage > 0)
                                     <div class="position-absolute top-0 end-0 bg-danger text-white px-2 py-1 m-2 rounded-pill">
-                                        <i class="fas fa-fire-alt me-1"></i>-{{ $product->discount }}%
+                                        <i class="fas fa-fire-alt me-1"></i>-{{ $product->discount_percentage }}%
                                     </div>
                                 @endif
                                 <div class="product-actions">
-                                    <button class="btn btn-outline-light btn-sm quick-view-btn" 
-                                            data-product-id="{{ $product->id }}">
+                                    <a href="{{ route('products.show', $product->id) }}" class="btn btn-outline-light btn-sm">
                                         <i class="fas fa-eye"></i>
-                                    </button>
+                                    </a>
                                     <button class="btn btn-primary btn-sm add-to-cart" 
                                             data-product-id="{{ $product->id }}">
                                         <i class="fas fa-cart-plus"></i>
@@ -208,11 +218,16 @@
                                 </div>
                             </div>
                             <div class="card-body">
-                                <h5 class="card-title fw-bold product-name">{{ $product->name }}</h5>
-                                <p class="card-text text-muted small product-desc">{{ Str::limit($product->description, 80) }}</p>
+                                <!-- Név linkként a termék oldalára -->
+                                <h5 class="card-title fw-bold product-name">
+                                    <a href="{{ route('products.show', $product->id) }}" class="text-dark product-title-link">
+                                        {{ $product->name }}
+                                    </a>
+                                </h5>
+                                <p class="card-text text-muted small product-desc">{{ Str::limit($product->short_description, 80) }}</p>
                                 <div class="d-flex justify-content-between align-items-center mt-3">
                                     <div class="product-price">
-                                        @if($product->discount)
+                                        @if(isset($product->discount_percentage) && $product->discount_percentage > 0)
                                             <span class="text-muted text-decoration-line-through small">
                                                 {{ number_format($product->original_price, 0, ',', ' ') }} Ft
                                             </span>
@@ -392,15 +407,6 @@
             });
         });
         
-        // Gyors megtekintés gomb kezelése
-        document.querySelectorAll('.quick-view-btn').forEach(button => {
-            button.addEventListener('click', function() {
-                const productId = this.dataset.productId;
-                // Itt lehetne implementálni a gyors megtekintés modált
-                console.log(`Gyors megtekintés: ${productId}`);
-            });
-        });
-        
         // Kategória kártyák hover effekt
         document.querySelectorAll('.category-card').forEach(card => {
             card.addEventListener('mouseenter', function() {
@@ -540,6 +546,23 @@
     .product-desc {
         height: 40px;
         overflow: hidden;
+    }
+    
+    /* Termék linkek */
+    .product-link {
+        display: block;
+        height: 100%;
+        width: 100%;
+        cursor: pointer;
+    }
+    
+    .product-title-link {
+        text-decoration: none;
+        transition: color 0.2s ease;
+    }
+    
+    .product-title-link:hover {
+        text-decoration: underline;
     }
     
     /* Előnyök szekció */
@@ -716,7 +739,10 @@
     document.addEventListener('DOMContentLoaded', function() {
         // Termék kosárhoz adása
         document.querySelectorAll('.add-to-cart').forEach(button => {
-            button.addEventListener('click', function() {
+            button.addEventListener('click', function(e) {
+                // Megakadályozzuk, hogy a kattintás továbbadódjon a termék linkre
+                e.stopPropagation();
+                
                 const productId = this.dataset.productId;
                 
                 // Animáció hozzáadása a gombhoz
@@ -734,7 +760,10 @@
                 .then(data => {
                     if (data.success) {
                         // Kosár ikon frissítése
-                        document.querySelector('.cart-count').textContent = data.cartCount;
+                        const cartCountElement = document.querySelector('.cart-count');
+                        if (cartCountElement) {
+                            cartCountElement.textContent = data.cartCount;
+                        }
                         
                         // Értesítés megjelenítése
                         const toast = document.createElement('div');
@@ -781,11 +810,14 @@
             });
         });
         
-        // Gyors megtekintés gomb kezelése
+        // Gyors megtekintés gomb eseménykezelő
         document.querySelectorAll('.quick-view-btn').forEach(button => {
-            button.addEventListener('click', function() {
+            button.addEventListener('click', function(e) {
+                // Megakadályozzuk, hogy a kattintás továbbadódjon a termék linkre
+                e.stopPropagation();
+                
                 const productId = this.dataset.productId;
-                // Itt lehetne implementálni a gyors megtekintés modált
+                // Itt később implementálhatod a gyors megtekintés modált
                 console.log(`Gyors megtekintés: ${productId}`);
             });
         });

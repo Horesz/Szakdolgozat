@@ -133,8 +133,8 @@
                                         @endif
                                         
                                         <div class="product-actions">
-                                            <a href="{{ route('products.show', $product->id) }}" class="btn btn-outline-light btn-sm">
-                                                <i class="fas fa-eye"></i>
+                                            <a href="{{ route('products.show', $product->id) }}" class="btn btn-outline-light btn-sm bg-primary">
+                                                <i class="fas  fa-eye"></i>
                                             </a>
                                             <button class="btn btn-primary btn-sm add-to-cart" 
                                                     data-product-id="{{ $product->id }}">
@@ -226,8 +226,8 @@
                                                     @endif
                                                 </div>
                                                 <div class="d-flex gap-2">
-                                                    <a href="{{ route('products.show', $product->id) }}" class="btn btn-outline-primary">
-                                                        <i class="fas fa-eye me-1"></i>Részletek
+                                                    <a href="{{ route('products.show', $product->id) }}" class="btn btn-outline-primary text-white bg-primary">
+                                                        <i class="fas fa-eye text-white me-1"></i>Részletek
                                                     </a>
                                                     <button class="btn btn-primary add-to-cart" data-product-id="{{ $product->id }}">
                                                         <i class="fas fa-cart-plus me-1"></i>Kosárba
@@ -242,8 +242,44 @@
                     </div>
                     
                     <!-- Lapozás -->
-                    <div class="d-flex justify-content-center mt-5">
-                        {{ $products->appends(request()->query())->links() }}
+                    <div class="d-flex flex-column align-items-center mt-5">
+                        @if ($products->hasPages())
+                            <nav aria-label="Termékek lapozása">
+                                <ul class="pagination">
+                                    {{-- Előző gomb --}}
+                                    @if ($products->onFirstPage())
+                                        <li class="page-item disabled">
+                                            <span class="page-link" aria-hidden="true"></span>
+                                        </li>
+                                    @else
+                                        <li class="page-item">
+                                            <a class="page-link" href="{{ $products->previousPageUrl() }}" rel="prev" aria-label="Előző"></a>
+                                        </li>
+                                    @endif
+
+                                    {{-- Oldalszámok --}}
+                                    @foreach ($products->getUrlRange(1, $products->lastPage()) as $page => $url)
+                                        <li class="page-item {{ $page == $products->currentPage() ? 'active' : '' }}">
+                                            <a class="page-link" href="{{ $url }}">{{ $page }}</a>
+                                        </li>
+                                    @endforeach
+
+                                    {{-- Következő gomb --}}
+                                    @if ($products->hasMorePages())
+                                        <li class="page-item">
+                                            <a class="page-link" href="{{ $products->nextPageUrl() }}" rel="next" aria-label="Következő"></a>
+                                        </li>
+                                    @else
+                                        <li class="page-item disabled">
+                                            <span class="page-link" aria-hidden="true"></span>
+                                        </li>
+                                    @endif
+                                </ul>
+                            </nav>
+                            <div class="pagination-info mt-2">
+                                {{ $products->firstItem() ?? 0 }} - {{ $products->lastItem() ?? 0 }} / {{ $products->total() }} termék
+                            </div>
+                        @endif
                     </div>
                 @endif
             </div>
@@ -386,10 +422,105 @@
         box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
     }
     
-    /* Lapozás stílusai */
+    /* Modern lapozás stílusok */
     .pagination {
-        --bs-pagination-active-bg: var(--bs-primary);
-        --bs-pagination-active-border-color: var(--bs-primary);
+        display: inline-flex;
+        padding: 0;
+        margin: 0;
+        border-radius: 0.5rem;
+        overflow: hidden;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .page-item:first-child .page-link {
+        border-top-left-radius: 0.5rem;
+        border-bottom-left-radius: 0.5rem;
+    }
+
+    .page-item:last-child .page-link {
+        border-top-right-radius: 0.5rem;
+        border-bottom-right-radius: 0.5rem;
+    }
+
+    .page-item.active .page-link {
+        background-color: var(--bs-primary);
+        border-color: var(--bs-primary);
+        font-weight: 600;
+        color: white;
+        box-shadow: 0 0 10px rgba(var(--bs-primary-rgb), 0.5);
+        z-index: 3;
+    }
+
+    .page-item.disabled .page-link {
+        color: #c2c7d0;
+        background-color: #f8f9fa;
+        border-color: #e9ecef;
+    }
+
+    .page-link {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 40px;
+        min-width: 40px;
+        padding: 0 15px;
+        line-height: 40px;
+        text-align: center;
+        border: 1px solid #e4e6ef;
+        color: #5e6278;
+        background-color: #ffffff;
+        font-weight: 500;
+        transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out;
+    }
+
+    .page-link:hover {
+        background-color: #f8f9fa;
+        color: var(--bs-primary);
+        border-color: #e4e6ef;
+        z-index: 2;
+    }
+
+    /* Modern nyilak */
+    .pagination .page-item:first-child .page-link,
+    .pagination .page-item:last-child .page-link {
+        font-size: 0;
+        position: relative;
+        width: 50px;
+    }
+
+    .pagination .page-item:first-child .page-link:before,
+    .pagination .page-item:last-child .page-link:before {
+        font-family: "Font Awesome 5 Free";
+        font-weight: 900;
+        font-size: 16px;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    .pagination .page-item:first-child .page-link:before {
+        content: "\f104"; /* fa-angle-left */
+    }
+
+    .pagination .page-item:last-child .page-link:before {
+        content: "\f105"; /* fa-angle-right */
+    }
+
+    /* Nem letiltott nyilak hover effekt */
+    .pagination .page-item:not(.disabled):first-child .page-link:hover,
+    .pagination .page-item:not(.disabled):last-child .page-link:hover {
+        background: var(--bs-primary);
+        color: white;
+        border-color: var(--bs-primary);
+    }
+
+    /* Aktuális szám és összes szám jelzése */
+    .pagination-info {
+        color: #6c757d;
+        font-size: 0.875rem;
+        margin-top: 0.5rem;
+        text-align: center;
     }
     
     /* Ár csúszka stílusok */

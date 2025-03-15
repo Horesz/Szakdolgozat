@@ -36,8 +36,8 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {{ request()->is('contact') ? 'active' : '' }}" href="/contact">
-                        <i class="fas fa-envelope me-1"></i> Kapcsolat
+                    <a class="nav-link {{ request()->routeIs('products.browse') ? 'active' : '' }}" href="{{ route('products.browse') }}">
+                        <i class="fas fa-box-open me-1"></i>Termékek böngészése
                     </a>
                 </li>
             </ul>
@@ -55,10 +55,10 @@
             {{-- Jobb oldali menü --}}
             <ul class="navbar-nav">
                 <li class="nav-item">
-                    <a class="nav-link" href="/cart">
+                    <a class="nav-link position-relative" href="{{ route('cart.index') }}">
                         <i class="fas fa-shopping-cart"></i>
                         @if(session()->has('cart_count') && session('cart_count') > 0)
-                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger cart-count">
                                 {{ session('cart_count') }}
                             </span>
                         @endif
@@ -76,11 +76,13 @@
                             <i class="fas fa-user-plus me-1"></i> Regisztráció
                         </a>
                     </li>
+                    
                 @else
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="fas fa-user me-1"></i> {{ Auth::user()->firstname }}
                     </a>
+                    
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                         @if(Auth::user()->role == 'admin') 
                             {{-- Admin menü - Termékek szekció --}}

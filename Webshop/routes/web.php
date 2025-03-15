@@ -17,7 +17,6 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 
 // ✅ Kategóriák listázása (ha van CategoryController)
 Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
-Route::get('/products', [ProductController::class, 'index'])->name('products');
 Route::get('/categories/{slug}', [CategoryController::class, 'show'])->name('categories.show');
 
 // ✅ Publikus kategóriaoldalak (ProductController kezeli)
@@ -27,6 +26,11 @@ Route::get('/category/components', [ProductController::class, 'components'])->na
 Route::get('/category/accessories', [ProductController::class, 'accessories'])->name('category.accessories');
 Route::get('/category/games', [ProductController::class, 'games'])->name('category.games');
 Route::get('/category/consoles', [ProductController::class, 'consoles'])->name('category.consoles');
+
+// ✅ Termékek böngészése és listázása
+Route::get('/products', [ProductController::class, 'browse'])->name('products'); // Ez kell a főoldalon
+Route::get('/products/browse', [ProductController::class, 'browse'])->name('products.browse');
+Route::get('/products/{product}', [ProductController::class, 'show'])->name('products.show');
 
 // ✅ Akciós termékek
 Route::get('/deals', [ProductController::class, 'deals'])->name('deals');
@@ -72,9 +76,18 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
     Route::delete('/categories/{category}', [CategoryController::class, 'destroy'])->name('admin.categories.destroy');
 });
 
-// routes/web.php - add hozzá
-Route::get('/products/browse', [ProductController::class, 'browse'])->name('products.browse');
-Route::get('/products/{product}', [ProductController::class, 'show'])->name('products.show');
+// Termék értékelés
+Route::post('/products/{product}/review', [ProductController::class, 'review'])
+    ->name('products.review')
+    ->middleware('auth');
+
+// Kosár műveletek
+Route::post('/cart/add/{product}', [ProductController::class, 'addToCart'])->name('cart.add');
+Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+Route::post('/cart/update', [CartController::class, 'update'])->name('cart.update');
+Route::post('/cart/remove', [CartController::class, 'remove'])->name('cart.remove');
+Route::get('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
+Route::get('/checkout', [CartController::class, 'checkout'])->name('cart.checkout');
 
 // ✅ Autentikációs útvonalak (Laravel Breeze/Fortify)
 require __DIR__.'/auth.php';

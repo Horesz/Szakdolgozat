@@ -34,49 +34,41 @@
                         <!-- Alapadatok -->
                         <div class="card mb-4">
                             <div class="card-header">
-                                <h5 class="card-title mb-0">Termék alapadatai</h5>
+                                <h5 class="card-title mb-0">Termék alapadatai (Csak olvasható)</h5>
                             </div>
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label for="name" class="form-label">Termék neve <span class="text-danger">*</span></label>
-                                        <input type="text" name="name" id="name" class="form-control @error('name') is-invalid @enderror" value="{{ old('name', $product->name) }}" required>
-                                        @error('name')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
+                                        <label for="name" class="form-label">Termék neve</label>
+                                        <input type="text" name="name" id="name" class="form-control" value="{{ $product->name }}" readonly>
+                                        <input type="hidden" name="name" value="{{ $product->name }}">
                                     </div>
                                     
                                     <div class="col-md-6 mb-3">
-                                        <label for="brand" class="form-label">Márka <span class="text-danger">*</span></label>
-                                        <input type="text" name="brand" id="brand" class="form-control @error('brand') is-invalid @enderror" value="{{ old('brand', $product->brand) }}" required>
-                                        @error('brand')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
+                                        <label for="brand" class="form-label">Márka</label>
+                                        <input type="text" name="brand" id="brand" class="form-control" value="{{ $product->brand }}" readonly>
+                                        <input type="hidden" name="brand" value="{{ $product->brand }}">
                                     </div>
                                 </div>
 
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label for="category_id" class="form-label">Kategória <span class="text-danger">*</span></label>
-                                        <select name="category_id" id="category_id" class="form-select @error('category_id') is-invalid @enderror" required>
+                                        <label for="category_id" class="form-label">Kategória</label>
+                                        <select name="category_id" id="category_id" class="form-select" disabled>
                                             <option value="">Válassz kategóriát</option>
                                             @foreach($categories as $category)
-                                                <option value="{{ $category->id }}" {{ old('category_id', $product->category_id) == $category->id ? 'selected' : '' }}>
+                                                <option value="{{ $category->id }}" {{ $product->category_id == $category->id ? 'selected' : '' }}>
                                                     {{ $category->name }}
                                                 </option>
                                             @endforeach
                                         </select>
-                                        @error('category_id')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
+                                        <input type="hidden" name="category_id" value="{{ $product->category_id }}">
                                     </div>
                                     
                                     <div class="col-md-6 mb-3">
-                                        <label for="type" class="form-label">Típus <span class="text-danger">*</span></label>
-                                        <input type="text" name="type" id="type" class="form-control @error('type') is-invalid @enderror" value="{{ old('type', $product->type) }}" required>
-                                        @error('type')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
+                                        <label for="type" class="form-label">Típus</label>
+                                        <input type="text" name="type" id="type" class="form-control" value="{{ $product->type }}" readonly>
+                                        <input type="hidden" name="type" value="{{ $product->type }}">
                                     </div>
                                 </div>
                             </div>
@@ -85,24 +77,19 @@
                         <!-- Leírások -->
                         <div class="card mb-4">
                             <div class="card-header">
-                                <h5 class="card-title mb-0">Termék leírása</h5>
+                                <h5 class="card-title mb-0">Termék leírása (Csak olvasható)</h5>
                             </div>
                             <div class="card-body">
                                 <div class="mb-3">
-                                    <label for="short_description" class="form-label">Rövid leírás <span class="text-danger">*</span></label>
-                                    <textarea name="short_description" id="short_description" class="form-control @error('short_description') is-invalid @enderror" rows="3" required>{{ old('short_description', $product->short_description) }}</textarea>
-                                    @error('short_description')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                    <small class="text-muted">Maximum 255 karakter. Ez jelenik meg a terméklistákban.</small>
+                                    <label for="short_description" class="form-label">Rövid leírás</label>
+                                    <textarea name="short_description_display" id="short_description_display" class="form-control" rows="3" readonly>{{ $product->short_description }}</textarea>
+                                    <input type="hidden" name="short_description" value="{{ $product->short_description }}">
                                 </div>
 
                                 <div class="mb-3">
-                                    <label for="full_description" class="form-label">Teljes leírás <span class="text-danger">*</span></label>
-                                    <textarea name="full_description" id="full_description" class="form-control @error('full_description') is-invalid @enderror" rows="6" required>{{ old('full_description', $product->full_description) }}</textarea>
-                                    @error('full_description')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
+                                    <label for="full_description" class="form-label">Teljes leírás</label>
+                                    <textarea name="full_description_display" id="full_description_display" class="form-control" rows="6" readonly>{{ $product->full_description }}</textarea>
+                                    <input type="hidden" name="full_description" value="{{ $product->full_description }}">
                                 </div>
                             </div>
                         </div>
@@ -113,15 +100,6 @@
                                 <h5 class="card-title mb-0">Termék képek</h5>
                             </div>
                             <div class="card-body">
-                                <div class="mb-3">
-                                    <label for="images" class="form-label">Képek feltöltése</label>
-                                    <input type="file" name="images[]" id="images" class="form-control @error('images') is-invalid @enderror" multiple accept="image/*">
-                                    @error('images')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                    <small class="text-muted">Többszörös kiválasztás lehetséges. Az első kép lesz a fő kép.</small>
-                                </div>
-
                                 <!-- Meglévő képek megjelenítése -->
                                 <div class="row mt-3">
                                     @php
@@ -155,10 +133,10 @@
                     </div>
 
                     <div class="col-md-4">
-                        <!-- Állapot és láthatóság -->
+                        <!-- Állapot és láthatóság - SZERKESZTHETŐ -->
                         <div class="card mb-4">
-                            <div class="card-header">
-                                <h5 class="card-title mb-0">Állapot és láthatóság</h5>
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="card-title mb-0">Állapot és láthatóság (Szerkeszthető)</h5>
                             </div>
                             <div class="card-body">
                                 <div class="mb-3">
@@ -186,10 +164,10 @@
                             </div>
                         </div>
 
-                        <!-- Árazás -->
+                        <!-- Árazás - SZERKESZTHETŐ -->
                         <div class="card mb-4">
-                            <div class="card-header">
-                                <h5 class="card-title mb-0">Árazás és készlet</h5>
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="card-title mb-0">Árazás és készlet (Szerkeszthető)</h5>
                             </div>
                             <div class="card-body">
                                 <div class="mb-3">
@@ -235,37 +213,13 @@
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Műszaki adatok -->
-                        <div class="card mb-4">
-                            <div class="card-header">
-                                <h5 class="card-title mb-0">Egyéb adatok</h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="mb-3">
-                                    <label for="weight" class="form-label">Súly (kg)</label>
-                                    <input type="number" name="weight" id="weight" class="form-control @error('weight') is-invalid @enderror" value="{{ old('weight', $product->weight) }}" step="0.01" min="0">
-                                    @error('weight')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-
-                                <div class="mb-3">
-                                    <label for="warranty_months" class="form-label">Garancia (hónap)</label>
-                                    <input type="number" name="warranty_months" id="warranty_months" class="form-control @error('warranty_months') is-invalid @enderror" value="{{ old('warranty_months', $product->warranty_months) }}" min="0">
-                                    @error('warranty_months')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
 
                 <div class="d-flex justify-content-end mt-4">
                     <a href="{{ route('admin.products.index') }}" class="btn btn-secondary me-2">Mégsem</a>
                     <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save me-2"></i>Termék mentése
+                        <i class="fas fa-save me-2"></i>Módosítások mentése
                     </button>
                 </div>
             </form>

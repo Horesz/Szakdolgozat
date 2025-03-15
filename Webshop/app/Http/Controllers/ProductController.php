@@ -116,34 +116,40 @@ class ProductController extends Controller
      */
     public function update(Request $request, Product $product)
     {
-        $validatedData = $request->validate([
-            'name' => 'required|max:255|unique:products,name,' . $product->id,
-            'category_id' => 'required|integer|exists:categories,id',
-            'price' => 'required|numeric|min:0',
-            'stock_quantity' => 'required|integer|min:0',
-            'type' => 'required',
-            'brand' => 'required|max:100',
-            'short_description' => 'required',
-            'full_description' => 'required',
-            'status' => 'required'
-        ]);
-        
-        $product->update($validatedData);
-        
-        // Képek frissítése
-        if ($request->hasFile('images')) {
-            ProductImage::where('product_id', $product->id)->delete();
-            foreach ($request->file('images') as $index => $image) {
-                $path = $image->store('products', 'public');
-                ProductImage::create([
-                    'product_id' => $product->id,
-                    'image_path' => Storage::url($path),
-                    'is_primary' => $index === 0,
-                ]);
-            }
+        try {
+            Log::info('Termék módosítási kísérlet:', $request->all());
+            
+            // Csak a korlátozott mezők validálása
+            $validatedData = $request->validate([
+                'price' => 'required|numeric|min:0',
+                'original_price' => 'nullable|numeric|min:0',
+                'discount_percentage' => 'nullable|numeric|min:0|max:100',
+                'stock_quantity' => 'required|integer|min:0',
+                'status' => 'required|string',
+            ]);
+            
+            // Rejtett mezők átvétele
+            $validatedData['name'] = $product->name; // Eredeti érték megtartása
+            $validatedData['brand'] = $product->brand; // Eredeti érték megtartása
+            $validatedData['category_id'] = $product->category_id; // Eredeti érték megtartása
+            $validatedData['type'] = $product->type; // Eredeti érték megtartása
+            $validatedData['short_description'] = $product->short_description; // Eredeti érték megtartása
+            $validatedData['full_description'] = $product->full_description; // Eredeti érték megtartása
+            
+            // Checkbox mezők kezelése
+            $validatedData['is_featured'] = $request->has('is_featured') ? 1 : 0;
+            $validatedData['is_new_arrival'] = $request->has('is_new_arrival') ? 1 : 0;
+            
+            // Termék frissítése
+            $product->update($validatedData);
+            
+            Log::info('Termék sikeresen frissítve:', ['id' => $product->id]);
+            
+            return redirect()->route('admin.products.index')->with('success', 'Termék sikeresen frissítve!');
+        } catch (\Exception $e) {
+            Log::error('Hiba termék módosításánál:', ['error' => $e->getMessage()]);
+            return redirect()->back()->withErrors('Hiba történt a termék módosítása közben: ' . $e->getMessage());
         }
-        
-        return redirect()->route('admin.products.index')->with('success', 'Termék sikeresen frissítve!');
     }
 
     /**
@@ -212,8 +218,135 @@ public function browse(Request $request)
     $products = $query->paginate(12);
     $categories = Category::where('status', 'active')->get();
     
-    return view('products.browse', compact('products', 'categories'));
+    return view('layouts.admin.products.browse', compact('products', 'categories'));
 }
+public function show(Product $product)
+{
+    // Specifications JSON string dekódolása tömbbé, ha nem üres
+    if ($product->specifications) {
+        $product->specifications = json_decode($product->specifications, true) ?? [];
+    } else {
+        $product->specifications = [];
+    }
+    
+    // Technical details JSON string dekódolása, ha van
+    if ($product->technical_details) {
+        $product->technical_details = json_decode($product->technical_details, true) ?? [];
+    } else {
+        $product->technical_details = [];
+    }
+    
+    // Shipping details JSON string dekódolása, ha van
+    if ($product->shipping_details) {
+        $product->shipping_details = json_decode($product->shipping_details, true) ?? [];
+    } else {
+        $product->shipping_details = [];
+    }
+    
+    // Tags JSON string dekódolása, ha van
+    if ($product->tags) {
+        $product->tags = json_decode($product->tags, true) ?? [];
+    } else {
+        $product->tags = [];
+    }
+    
+    // A termék megtekintésének rögzítése (analitikához)
+    // Ezt később ki lehet egészíteni a tényleges használat szerint
+    
+    // Kapcsolódó termékek lekérése
+    $relatedProducts = Product::where('category_id', $product->category_id)
+        ->where('id', '!=', $product->id)
+        ->where('status', 'Aktív')
+        ->inRandomOrder()
+        ->take(4)
+        ->get();
+    
+    return view('layouts.admin.products.show', compact('product', 'relatedProducts'));
+}
+    
+    /**
+     * Értékelés hozzáadása egy termékhez
+     */
+    public function review(Request $request, Product $product)
+    {
+        // Validálás
+        $request->validate([
+            'rating' => 'required|integer|min:1|max:5',
+            'title' => 'required|string|max:255',
+            'comment' => 'required|string'
+        ]);
+        
+        // Ellenőrizzük, hogy a felhasználó be van-e jelentkezve
+        if (!auth()->check()) {
+            return redirect()->back()->with('error', 'A vélemény írásához be kell jelentkezni.');
+        }
+        
+        // Értékelés mentése
+        // Ez a kód feltételezi, hogy van egy Review modell - ha később ezt implementálod
+        /*
+        $review = new Review([
+            'user_id' => auth()->id(),
+            'product_id' => $product->id,
+            'rating' => $request->rating,
+            'title' => $request->title,
+            'comment' => $request->comment
+        ]);
+        $review->save();
+        */
+        
+        // Sikeres üzenet
+        return redirect()->back()->with('success', 'Köszönjük az értékelését! Az értékelés moderálás után lesz látható.');
+    }
+    
+    /**
+     * Termék hozzáadása a kosárhoz
+     */
+    public function addToCart(Request $request, $productId)
+    {
+        $product = Product::findOrFail($productId);
+        $quantity = $request->input('quantity', 1);
+        
+        // Ellenőrizzük, hogy van-e elegendő készlet
+        if ($product->stock_quantity < $quantity) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Nincs elegendő készlet'
+            ]);
+        }
+        
+        // Kosár kezdése, ha még nincs
+        if (!session()->has('cart')) {
+            session()->put('cart', []);
+        }
+        
+        $cart = session()->get('cart');
+        
+        // Ha a termék már van a kosárban, növeljük a mennyiséget
+        if (isset($cart[$productId])) {
+            $cart[$productId]['quantity'] += $quantity;
+        } else {
+            // Ha még nincs, hozzáadjuk
+            $cart[$productId] = [
+                'id' => $product->id,
+                'name' => $product->name,
+                'price' => $product->price,
+                'quantity' => $quantity,
+                'image' => $product->images()->exists() ? $product->images()->where('is_primary', 1)->first()->image_path : 'images/no-image.jpg'
+            ];
+        }
+        
+        session()->put('cart', $cart);
+        
+        // Kosár termékek számának frissítése a session-ben
+        $cartCount = array_sum(array_column($cart, 'quantity'));
+        session()->put('cart_count', $cartCount);
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Termék sikeresen hozzáadva a kosárhoz',
+            'cartCount' => $cartCount
+        ]);
+    }
 
 
 }
