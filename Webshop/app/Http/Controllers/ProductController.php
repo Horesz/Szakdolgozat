@@ -117,38 +117,64 @@ class ProductController extends Controller
     public function update(Request $request, Product $product)
     {
         try {
-            Log::info('Termék módosítási kísérlet:', $request->all());
+            Log::info('Termék frissítési kérés adatai:', [
+                'request_data' => $request->all(),
+                'product_id' => $product->id
+            ]);
             
-            // Csak a korlátozott mezők validálása
+            // Alapos validálás
             $validatedData = $request->validate([
+                'name' => 'required|string|max:255',
+                'brand' => 'required|string|max:255',
+                'category_id' => 'required|exists:categories,id',
+                'type' => 'required|string|max:255',
                 'price' => 'required|numeric|min:0',
                 'original_price' => 'nullable|numeric|min:0',
                 'discount_percentage' => 'nullable|numeric|min:0|max:100',
                 'stock_quantity' => 'required|integer|min:0',
-                'status' => 'required|string',
+                'status' => 'required|string|max:255',
+                'short_description' => 'required|string',
+                'full_description' => 'required|string',
             ]);
-            
-            // Rejtett mezők átvétele
-            $validatedData['name'] = $product->name; // Eredeti érték megtartása
-            $validatedData['brand'] = $product->brand; // Eredeti érték megtartása
-            $validatedData['category_id'] = $product->category_id; // Eredeti érték megtartása
-            $validatedData['type'] = $product->type; // Eredeti érték megtartása
-            $validatedData['short_description'] = $product->short_description; // Eredeti érték megtartása
-            $validatedData['full_description'] = $product->full_description; // Eredeti érték megtartása
             
             // Checkbox mezők kezelése
             $validatedData['is_featured'] = $request->has('is_featured') ? 1 : 0;
             $validatedData['is_new_arrival'] = $request->has('is_new_arrival') ? 1 : 0;
             
+            // Frissítés előtti állapot rögzítése
+            $oldCategoryId = $product->category_id;
+            
             // Termék frissítése
             $product->update($validatedData);
             
-            Log::info('Termék sikeresen frissítve:', ['id' => $product->id]);
+            // Kategória változás ellenőrzése
+            $categoryChanged = ($oldCategoryId != $product->category_id);
             
-            return redirect()->route('admin.products.index')->with('success', 'Termék sikeresen frissítve!');
+            Log::info('Termék frissítés eredménye:', [
+                'product_id' => $product->id,
+                'old_category_id' => $oldCategoryId,
+                'new_category_id' => $product->category_id,
+                'category_changed' => $categoryChanged
+            ]);
+            
+            if ($categoryChanged) {
+                $categoryName = Category::find($product->category_id)->name ?? 'ismeretlen';
+                return redirect()->route('admin.products.index')
+                    ->with('success', "Termék sikeresen frissítve! A kategória átállítva: {$categoryName}");
+            } else {
+                return redirect()->route('admin.products.index')
+                    ->with('success', 'Termék sikeresen frissítve!');
+            }
+            
         } catch (\Exception $e) {
-            Log::error('Hiba termék módosításánál:', ['error' => $e->getMessage()]);
-            return redirect()->back()->withErrors('Hiba történt a termék módosítása közben: ' . $e->getMessage());
+            Log::error('Hiba termék frissítésekor:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTrace()
+            ]);
+            
+            return redirect()->back()
+                ->withInput()
+                ->withErrors('Hiba történt a termék módosítása közben: ' . $e->getMessage());
         }
     }
 

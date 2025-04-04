@@ -38,12 +38,7 @@
     </main>
 
     <!-- Lábléc -->
-    <footer class="py-4 bg-dark text-white text-center">
-        <div class="container">
-            <p>&copy; {{ date('Y') }} GamerShop. Minden jog fenntartva.</p>
-            <p>Készítette: <a href="https://github.com/horesz" class="text-white text-decoration-underline">Sinka Barnabás</a></p>
-        </div>
-    </footer>
+    @include('layouts.footer')
 
     <!-- JavaScript -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -66,6 +61,5 @@
         }, 10000); // 10 másodperc után eltűnik
     </script>
 @endif
-
 </body>
 </html>

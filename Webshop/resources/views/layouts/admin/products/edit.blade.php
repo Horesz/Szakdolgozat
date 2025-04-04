@@ -1,5 +1,5 @@
+{{-- edit.blade.php - JAVÍTOTT VERZIÓ --}}
 @extends('layouts.app')
-
 
 @section('content')
 <div class="container-fluid px-4 py-5">
@@ -34,40 +34,43 @@
                         <!-- Alapadatok -->
                         <div class="card mb-4">
                             <div class="card-header">
-                                <h5 class="card-title mb-0">Termék alapadatai (Csak olvasható)</h5>
+                                <h5 class="card-title mb-0">Termék alapadatai</h5>
                             </div>
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label for="name" class="form-label">Termék neve</label>
-                                        <input type="text" name="name" id="name" class="form-control" value="{{ $product->name }}" readonly>
+                                        <label for="name" class="form-label">Termék neve (Csak olvasható)</label>
+                                        <input type="text" id="name_display" class="form-control" value="{{ $product->name }}" readonly>
                                         <input type="hidden" name="name" value="{{ $product->name }}">
                                     </div>
                                     
                                     <div class="col-md-6 mb-3">
-                                        <label for="brand" class="form-label">Márka</label>
-                                        <input type="text" name="brand" id="brand" class="form-control" value="{{ $product->brand }}" readonly>
+                                        <label for="brand" class="form-label">Márka (Csak olvasható)</label>
+                                        <input type="text" id="brand_display" class="form-control" value="{{ $product->brand }}" readonly>
                                         <input type="hidden" name="brand" value="{{ $product->brand }}">
                                     </div>
                                 </div>
 
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label for="category_id" class="form-label">Kategória</label>
-                                        <select name="category_id" id="category_id" class="form-select" disabled>
+                                        <label for="category_id" class="form-label">Kategória <span class="text-primary font-weight-bold">*</span></label>
+                                        <select name="category_id" id="category_id" class="form-select @error('category_id') is-invalid @enderror">
                                             <option value="">Válassz kategóriát</option>
                                             @foreach($categories as $category)
-                                                <option value="{{ $category->id }}" {{ $product->category_id == $category->id ? 'selected' : '' }}>
+                                                <option value="{{ $category->id }}" {{ old('category_id', $product->category_id) == $category->id ? 'selected' : '' }}>
                                                     {{ $category->name }}
                                                 </option>
                                             @endforeach
                                         </select>
-                                        <input type="hidden" name="category_id" value="{{ $product->category_id }}">
+                                        @error('category_id')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                        <small class="text-primary">Ez a mező módosítható!</small>
                                     </div>
                                     
                                     <div class="col-md-6 mb-3">
-                                        <label for="type" class="form-label">Típus</label>
-                                        <input type="text" name="type" id="type" class="form-control" value="{{ $product->type }}" readonly>
+                                        <label for="type" class="form-label">Típus (Csak olvasható)</label>
+                                        <input type="text" id="type_display" class="form-control" value="{{ $product->type }}" readonly>
                                         <input type="hidden" name="type" value="{{ $product->type }}">
                                     </div>
                                 </div>
@@ -82,13 +85,13 @@
                             <div class="card-body">
                                 <div class="mb-3">
                                     <label for="short_description" class="form-label">Rövid leírás</label>
-                                    <textarea name="short_description_display" id="short_description_display" class="form-control" rows="3" readonly>{{ $product->short_description }}</textarea>
+                                    <textarea id="short_description_display" class="form-control" rows="3" readonly>{{ $product->short_description }}</textarea>
                                     <input type="hidden" name="short_description" value="{{ $product->short_description }}">
                                 </div>
 
                                 <div class="mb-3">
                                     <label for="full_description" class="form-label">Teljes leírás</label>
-                                    <textarea name="full_description_display" id="full_description_display" class="form-control" rows="6" readonly>{{ $product->full_description }}</textarea>
+                                    <textarea id="full_description_display" class="form-control" rows="6" readonly>{{ $product->full_description }}</textarea>
                                     <input type="hidden" name="full_description" value="{{ $product->full_description }}">
                                 </div>
                             </div>
@@ -217,7 +220,7 @@
                 </div>
 
                 <div class="d-flex justify-content-end mt-4">
-                    <a href="{{ route('admin.products.index') }}" class="btn btn-secondary me-2">Mégsem</a>
+                    <a href="{{ route('admin.products.index') }}" class="btn text-white btn-secondary me-2">Mégsem</a>
                     <button type="submit" class="btn btn-primary">
                         <i class="fas fa-save me-2"></i>Módosítások mentése
                     </button>

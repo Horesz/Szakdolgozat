@@ -15,6 +15,21 @@ use Illuminate\Support\Facades\Route;
 // ✅ Főoldal (csak 1 db legyen!)
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
+
+
+// statikus oldalak
+
+Route::get('/about', [PageController::class, 'about'])->name('about');
+Route::get('/contact', [PageController::class, 'contact'])->name('contact');
+Route::post('/contact', [PageController::class, 'submitContact'])->name('contact.submit');
+Route::get('/terms', [PageController::class, 'terms'])->name('terms');
+Route::get('/privacy', [PageController::class, 'privacy'])->name('privacy');
+Route::get('/cookies', [PageController::class, 'cookies'])->name('cookies');
+Route::get('/sitemap', [PageController::class, 'sitemap'])->name('sitemap');
+
+Route::post('/newsletter/subscribe', [PageController::class, 'subscribeNewsletter'])->name('newsletter.subscribe');
+
+
 // ✅ Kategóriák listázása (ha van CategoryController)
 Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
 Route::get('/categories/{slug}', [CategoryController::class, 'show'])->name('categories.show');
