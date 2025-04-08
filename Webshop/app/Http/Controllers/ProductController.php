@@ -14,7 +14,12 @@ class ProductController extends Controller
 {
     public function index()
     {
+        if (!(auth()->check() && (auth()->user()->role == 'admin' || auth()->user()->role == 'munkatars'))) {
+            return redirect('/')->with('error', 'Nincs jogosultságod ehhez a művelethez!');
+        }
+        
         $products = Product::latest()->paginate(10);
+        
         return view('layouts.admin.products.index', compact('products'));
     }
 

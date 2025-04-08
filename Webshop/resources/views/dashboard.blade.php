@@ -27,9 +27,10 @@
 <div class="container">
     <h1>Üdvözlünk, {{ $user->full_name }}!</h1>
     <p>Ez a te személyre szabott vezérlőpultod.</p>
-    @if($user->role === 'admin')
+    
+    @if($user->role === 'munkatars')
     <div class="alert alert-info mt-4">
-        Adminisztrátor vagy.
+        Munkatárs vagy.
         {{-- <a href="{{ route('admin.dashboard') }}" class="btn btn-danger">Adminisztrációs felület</a> --}}
     </div>
     @endif
