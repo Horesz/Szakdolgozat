@@ -156,7 +156,7 @@
                         
                         <!-- Fizetés gomb -->
                         <div class="d-grid">
-                            <a href="{{ route('cart.checkout') }}" class="btn btn-primary btn-lg">
+                            <a href="{{ route('layouts.admin.cart.checkout') }}" class="btn btn-primary text-white btn-lg">
                                 <i class="fas fa-credit-card me-2"></i>Tovább a fizetéshez
                             </a>
                         </div>

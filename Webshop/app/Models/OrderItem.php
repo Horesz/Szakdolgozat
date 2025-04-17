@@ -10,21 +10,21 @@ class OrderItem extends Model
     use HasFactory;
 
     /**
-     * A tömegesen kitölthető attribútumok.
+     * The attributes that are mass assignable.
      *
      * @var array
      */
     protected $fillable = [
         'order_id',
         'product_id',
-        'product_name',
-        'product_price',
+        'name',
+        'price',
         'quantity',
-        'subtotal',
+        'subtotal'
     ];
 
     /**
-     * A rendelés, amihez az elem tartozik.
+     * Get the order that owns the item.
      */
     public function order()
     {
@@ -32,26 +32,10 @@ class OrderItem extends Model
     }
 
     /**
-     * A termék, amit megrendeltek.
+     * Get the product that was ordered.
      */
     public function product()
     {
         return $this->belongsTo(Product::class);
-    }
-
-    /**
-     * Termék kép elérési útja.
-     * 
-     * @return string
-     */
-    public function getImagePathAttribute()
-    {
-        // Ha van kapcsolódó termék és van hozzá kép
-        if ($this->product && $this->product->images()->exists()) {
-            return $this->product->images()->where('is_primary', 1)->first()->image_path;
-        }
-        
-        // Alapértelmezett kép, ha nincs termék kép
-        return 'images/no-image.jpg';
     }
 }

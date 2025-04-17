@@ -22,6 +22,13 @@
                 </div>
             @endif
             
+            @if(session('birthday'))
+                <div class="alert alert-info alert-dismissible fade show" role="alert">
+                    <i class="fas fa-birthday-cake me-2"></i> {{ session('birthday') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
+            
             @if($errors->any())
                 <div class="alert alert-danger alert-dismissible fade show" role="alert">
                     <strong>Hiba!</strong> Kérjük, ellenőrizd az űrlapot.
@@ -120,15 +127,124 @@
                                     Adataim mentése a következő vásárláshoz
                                 </label>
                             </div>
+                            
+                            <!-- Hűségpont használata bejelentkezett felhasználóknak -->
+                            @if(Auth::user()->loyalty_points > 0)
+                                <div class="card bg-light mt-4 mb-3">
+                                    <div class="card-body">
+                                        <h6 class="mb-3">
+                                            <i class="fas fa-star text-warning me-2"></i>
+                                            Hűségpontok felhasználása 
+                                            <span class="badge bg-primary ms-2">{{ Auth::user()->getLoyaltyLevelAttribute() }} szint</span>
+                                        </h6>
+                                        <p class="mb-2">
+                                            Jelenleg <strong>{{ Auth::user()->loyalty_points }} pont</strong> áll rendelkezésedre, 
+                                            ami maximum <strong>{{ number_format(Auth::user()->getAvailableDiscountAmount(), 0, ',', ' ') }} Ft</strong>
+                                            kedvezményre váltható be.
+                                        </p>
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="checkbox" name="use_loyalty_points" id="use_loyalty_points" value="1" {{ old('use_loyalty_points') ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="use_loyalty_points">
+                                                Szeretném felhasználni a hűségpontjaimat
+                                            </label>
+                                        </div>
+                                        <div class="loyalty-points-input mt-3" style="{{ old('use_loyalty_points') ? '' : 'display: none;' }}">
+                                            <label for="loyalty_points_amount" class="form-label">Felhasználni kívánt pontok száma</label>
+                                            <input type="number" class="form-control" name="loyalty_points_amount" id="loyalty_points_amount" 
+                                                min="10" max="{{ Auth::user()->loyalty_points }}" step="10"
+                                                value="{{ old('loyalty_points_amount', min(Auth::user()->loyalty_points, 100)) }}">
+                                            <div class="form-text">
+                                                10 pont = 100 Ft kedvezmény. A pontok 10-es egységekben használhatók fel.
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
                         @else
-                            <div class="alert alert-info">
-                                A megrendeléshez be kell jelentkezned vagy regisztrálnod kell.
-                                <div class="mt-3">
-                                    <a href="{{ route('login') }}" class="btn btn-primary me-2">Bejelentkezés</a>
-                                    <a href="{{ route('register') }}" class="btn btn-outline-primary">Regisztráció</a>
+                            <!-- Vendég felhasználók számára -->
+                            <div class="guest-checkout-info mb-4">
+                                <div class="d-flex mb-3">
+                                    <div>
+                                        <p class="mb-1">Vásárolj bejelentkezés nélkül vagy</p>
+                                        <div class="mt-2">
+                                            <a href="{{ route('login') }}?redirect=checkout" class="btn btn-sm btn-primary me-2">Bejelentkezés</a>
+                                            <a href="{{ route('register') }}?redirect=checkout" class="btn btn-sm btn-outline-primary">Regisztráció</a>
+                                        </div>
+                                    </div>
+                                    <div class="ms-auto text-end">
+                                        <div class="badge bg-info p-2">
+                                            <i class="fas fa-info-circle me-1"></i> Bejelentkezve hűségpontokat gyűjthetsz!
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                        @endauth
+                            
+                            <div class="row mb-4">
+                                <div class="col-md-6 mb-3">
+                                    <label for="firstname" class="form-label">Keresztnév <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control @error('firstname') is-invalid @enderror" id="firstname" name="firstname" value="{{ old('firstname') }}" required>
+                                    @error('firstname')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="lastname" class="form-label">Vezetéknév <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control @error('lastname') is-invalid @enderror" id="lastname" name="lastname" value="{{ old('lastname') }}" required>
+                                    @error('lastname')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                            
+                            <div class="row mb-4">
+                                <div class="col-md-6 mb-3">
+                                    <label for="email" class="form-label">Email cím <span class="text-danger">*</span></label>
+                                    <input type="email" class="form-control @error('email') is-invalid @enderror" id="email" name="email" value="{{ old('email') }}" required>
+                                    @error('email')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="phone" class="form-label">Telefonszám <span class="text-danger">*</span></label>
+                                    <input type="tel" class="form-control @error('phone') is-invalid @enderror" id="phone" name="phone" value="{{ old('phone') }}" required>
+                                    @error('phone')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                            
+                            <div class="row mb-4">
+                                <div class="col-md-3 mb-3">
+                                    <label for="address_zip" class="form-label">Irányítószám <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control @error('address_zip') is-invalid @enderror" id="address_zip" name="address_zip" value="{{ old('address_zip') }}" required>
+                                    @error('address_zip')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                <div class="col-md-5 mb-3">
+                                    <label for="address_city" class="form-label">Város <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control @error('address_city') is-invalid @enderror" id="address_city" name="address_city" value="{{ old('address_city') }}" required>
+                                    @error('address_city')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="address_street" class="form-label">Utca, házszám <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control @error('address_street') is-invalid @enderror" id="address_street" name="address_street" value="{{ old('address_street') }}" required>
+                                    @error('address_street')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label for="address_additional" class="form-label">Kiegészítő cím információk</label>
+                                <input type="text" class="form-control @error('address_additional') is-invalid @enderror" id="address_additional" name="address_additional" value="{{ old('address_additional') }}" placeholder="Emelet, ajtó, egyéb információk">
+                                @error('address_additional')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        @endif
                     </div>
                 </div>
                 
@@ -271,6 +387,20 @@
                                     @endif
                                 </span>
                             </div>
+                            
+                            <!-- Hűségpont kedvezmény sor (csak bejelentkezett felhasználóknak) -->
+                            @auth
+                                @if(isset($loyaltyDiscount) && $loyaltyDiscount > 0)
+                                <div class="d-flex justify-content-between mb-2 loyalty-discount-row">
+                                    <span>Hűségpont kedvezmény:</span>
+                                    <span class="fw-bold text-success" id="loyalty-discount">
+                                        -{{ number_format($loyaltyDiscount, 0, ',', ' ') }} Ft
+                                    </span>
+                                </div>
+                                @endif
+                            @endauth
+                            
+                            <!-- Egyéb kedvezmény (pl. kupon) -->
                             @if(isset($discount) && $discount > 0)
                                 <div class="d-flex justify-content-between mb-2">
                                     <span>Kedvezmény:</span>
@@ -307,18 +437,9 @@
                         </div>
                         
                         <!-- Rendelés véglegesítése -->
-                        @auth
-                            <button type="submit" class="btn btn-primary btn-lg w-100" id="place-order-btn">
-                                <i class="fas fa-check-circle me-2"></i>Rendelés véglegesítése
-                            </button>
-                        @else
-                            <button type="button" class="btn btn-primary btn-lg w-100" disabled>
-                                <i class="fas fa-check-circle me-2"></i>Rendelés véglegesítése
-                            </button>
-                            <div class="text-center mt-2 text-muted small">
-                                Jelentkezz be a rendelés leadásához
-                            </div>
-                        @endauth
+                        <button type="submit" class="btn btn-primary btn-lg w-100" id="place-order-btn">
+                            <i class="fas fa-check-circle me-2"></i>Rendelés véglegesítése
+                        </button>
                     </div>
                 </div>
             </div>
@@ -344,25 +465,70 @@
         // Kezdeti subtotal (kiszállítás nélkül)
         const subtotal = {{ $subtotal }};
         
+        // Hűségpont használat kezelése
+        @auth
+            const useLoyaltyPointsCheckbox = document.getElementById('use_loyalty_points');
+            const loyaltyPointsInput = document.querySelector('.loyalty-points-input');
+            const loyaltyPointsAmount = document.getElementById('loyalty_points_amount');
+            
+            if (useLoyaltyPointsCheckbox) {
+                useLoyaltyPointsCheckbox.addEventListener('change', function() {
+                    if (this.checked) {
+                        loyaltyPointsInput.style.display = 'block';
+                        updateTotals();
+                    } else {
+                        loyaltyPointsInput.style.display = 'none';
+                        updateTotals();
+                    }
+                });
+                
+                if (loyaltyPointsAmount) {
+                    loyaltyPointsAmount.addEventListener('change', updateTotals);
+                }
+            }
+        @endauth
+        
         // Szállítási mód változásának figyelése
         shippingOptions.forEach(option => {
             option.addEventListener('change', updateTotals);
         });
         
-        // Összegek frissítése a szállítási mód alapján
+        // Összegek frissítése
         function updateTotals() {
+            // Szállítási költség számítása
             const selectedShipping = document.querySelector('input[name="shipping_method"]:checked').value;
             const shippingCost = shippingCosts[selectedShipping];
             
             // Szállítási költség megjelenítése
             if (shippingCost > 0) {
-                shippingCostDisplay.innerHTML = `${new Intl.NumberFormat('hu-HU').format(shippingCost)} Ft`;
-            } else {
                 shippingCostDisplay.innerHTML = `<span class="badge bg-success">Ingyenes</span>`;
             }
             
+            // Hűségpont kedvezmény számítása
+            let loyaltyDiscount = 0;
+            
+            @auth
+                if (useLoyaltyPointsCheckbox && useLoyaltyPointsCheckbox.checked && loyaltyPointsAmount) {
+                    const points = parseInt(loyaltyPointsAmount.value) || 0;
+                    loyaltyDiscount = Math.floor(points / 10) * 100;
+                    
+                    // Maximum a rendelés 30%-a lehet kedvezmény
+                    const maxDiscount = subtotal * 0.3;
+                    loyaltyDiscount = Math.min(loyaltyDiscount, maxDiscount);
+                    
+                    // Frissítsük a loyalty-discount sort, ha létezik
+                    const loyaltyDiscountDisplay = document.getElementById('loyalty-discount');
+                    if (loyaltyDiscountDisplay) {
+                        loyaltyDiscountDisplay.textContent = `-${new Intl.NumberFormat('hu-HU').format(loyaltyDiscount)} Ft`;
+                    }
+                }
+            @endauth
+            
+            // Egyéb kedvezmények (pl. kupon)
+            let otherDiscount = {{ isset($discount) ? $discount : 0 }};
+            
             // Végösszeg számítása és megjelenítése
-            const total = subtotal + shippingCost;
+            const total = subtotal + shippingCost - loyaltyDiscount - otherDiscount;
             cartTotal.textContent = `${new Intl.NumberFormat('hu-HU').format(total)} Ft`;
         }
         
@@ -469,6 +635,11 @@
         color: #6c757d;
     }
     
+    /* Hűségpont stílusok */
+    .loyalty-points-input {
+        transition: all 0.3s ease;
+    }
+    
     /* Sticky összegző jobb oldalon */
     @media (min-width: 992px) {
         .sticky-top {
@@ -487,6 +658,14 @@
         .shipping-option label > span:last-child, .payment-option label > div:last-child {
             margin-top: 10px;
         }
+    }
+    
+    /* Vendég checkout stílusok */
+    .guest-checkout-info {
+        background-color: #f8f9fa;
+        border-radius: 6px;
+        padding: 15px;
+        border-left: 4px solid var(--bs-info);
     }
 </style>
 @endpush

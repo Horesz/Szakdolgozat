@@ -2,18 +2,12 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
+use Carbon\Carbon;
 
 class Order extends Model
 {
-    use HasFactory;
-
-    /**
-     * A tömegesen kitölthető attribútumok.
-     *
-     * @var array
-     */
     protected $fillable = [
         'user_id',
         'order_number',
@@ -28,6 +22,8 @@ class Order extends Model
         'subtotal',
         'shipping_cost',
         'discount',
+        'loyalty_points_used',
+        'loyalty_points_earned',
         'total',
         'shipping_method',
         'payment_method',
@@ -35,11 +31,22 @@ class Order extends Model
         'order_status',
         'order_notes',
         'coupon_code',
-        'invoice_issued',
+        'is_guest',
+        'guest_token'
+    ];
+
+    protected $casts = [
+        'subtotal' => 'float',
+        'shipping_cost' => 'float',
+        'discount' => 'float',
+        'total' => 'float',
+        'loyalty_points_used' => 'integer',
+        'loyalty_points_earned' => 'integer',
+        'is_guest' => 'boolean',
     ];
 
     /**
-     * A felhasználó, aki a rendelést leadta.
+     * A rendeléshez tartozó felhasználó.
      */
     public function user()
     {
@@ -47,7 +54,7 @@ class Order extends Model
     }
 
     /**
-     * A rendeléshez tartozó termékek.
+     * A rendeléshez tartozó tételek.
      */
     public function items()
     {
@@ -55,160 +62,208 @@ class Order extends Model
     }
 
     /**
-     * Egyedi rendelésszám generálása
-     * 
+     * Egyedi rendelési szám generálása.
+     *
      * @return string
      */
     public static function generateOrderNumber()
     {
-        // Egyedi rendelésszám generálása prefix + timestamp + random szám alapján
         $prefix = 'GS';
-        $timestamp = date('YmdHis');
-        $random = mt_rand(1000, 9999);
+        $date = Carbon::now()->format('ymd');
+        $randomString = strtoupper(Str::random(4));
         
-        return $prefix . $timestamp . $random;
+        return $prefix . $date . $randomString;
     }
 
     /**
-     * Rendelés státusz szöveges leírása
-     * 
+     * Egyedi vendég token generálása a rendelés követéséhez.
+     *
      * @return string
      */
-    public function getStatusTextAttribute()
+    public static function generateGuestToken()
     {
-        $statuses = [
-            'pending' => 'Feldolgozás alatt',
-            'processing' => 'Folyamatban',
-            'shipped' => 'Szállítás alatt',
-            'delivered' => 'Kézbesítve',
-            'completed' => 'Teljesítve',
-            'cancelled' => 'Lemondva',
-            'refunded' => 'Visszatérítve'
-        ];
-
-        return $statuses[$this->order_status] ?? 'Ismeretlen';
+        return Str::random(32);
     }
 
     /**
-     * Fizetés státusz szöveges leírása
-     * 
+     * A szállítási mód nevének lekérdezése.
+     *
      * @return string
      */
-    public function getPaymentStatusTextAttribute()
+    public function getShippingMethodNameAttribute()
     {
-        $statuses = [
-            'pending' => 'Függőben',
-            'paid' => 'Kifizetve',
-            'failed' => 'Sikertelen',
-            'refunded' => 'Visszatérítve'
-        ];
-
-        return $statuses[$this->payment_status] ?? 'Ismeretlen';
+        switch ($this->shipping_method) {
+            case 'courier':
+                return 'Házhozszállítás futárral';
+            case 'pickup_point':
+                return 'Csomagpont';
+            case 'store':
+                return 'Személyes átvétel üzletünkben';
+            default:
+                return $this->shipping_method;
+        }
     }
 
     /**
-     * Szállítási mód szöveges leírása
-     * 
+     * A fizetési mód nevének lekérdezése.
+     *
      * @return string
      */
-    public function getShippingMethodTextAttribute()
+    public function getPaymentMethodNameAttribute()
     {
-        $methods = [
-            'courier' => 'Házhozszállítás futárral',
-            'pickup_point' => 'Csomagpont',
-            'store' => 'Személyes átvétel üzletünkben'
-        ];
-
-        return $methods[$this->shipping_method] ?? 'Ismeretlen';
+        switch ($this->payment_method) {
+            case 'card':
+                return 'Bankkártyával online';
+            case 'transfer':
+                return 'Banki átutalás';
+            case 'cod':
+                return 'Utánvét';
+            default:
+                return $this->payment_method;
+        }
     }
 
     /**
-     * Fizetési mód szöveges leírása
-     * 
+     * A rendelési státusz nevének lekérdezése.
+     *
      * @return string
      */
-    public function getPaymentMethodTextAttribute()
+    public function getOrderStatusNameAttribute()
     {
-        $methods = [
-            'card' => 'Bankkártyával online',
-            'transfer' => 'Banki átutalás',
-            'cod' => 'Utánvét'
-        ];
-
-        return $methods[$this->payment_method] ?? 'Ismeretlen';
+        switch ($this->order_status) {
+            case 'pending':
+                return 'Feldolgozás alatt';
+            case 'processing':
+                return 'Feldolgozva';
+            case 'shipped':
+                return 'Kiszállítva';
+            case 'delivered':
+                return 'Kézbesítve';
+            case 'cancelled':
+                return 'Törölve';
+            default:
+                return $this->order_status;
+        }
     }
 
     /**
-     * Rendelés teljes neve
-     * 
+     * A fizetési státusz nevének lekérdezése.
+     *
+     * @return string
+     */
+    public function getPaymentStatusNameAttribute()
+    {
+        switch ($this->payment_status) {
+            case 'pending':
+                return 'Fizetésre vár';
+            case 'processing':
+                return 'Feldolgozás alatt';
+            case 'paid':
+                return 'Kifizetve';
+            case 'refunded':
+                return 'Visszatérítve';
+            case 'failed':
+                return 'Sikertelen';
+            default:
+                return $this->payment_status;
+        }
+    }
+
+    /**
+     * A rendelés teljes neve (vezetéknév és keresztnév).
+     *
      * @return string
      */
     public function getFullNameAttribute()
     {
-        return $this->firstname . ' ' . $this->lastname;
+        return "{$this->lastname} {$this->firstname}";
     }
 
     /**
-     * Teljes cím
-     * 
+     * A rendelés teljes címe.
+     *
      * @return string
      */
     public function getFullAddressAttribute()
     {
-        $address = $this->address_zip . ' ' . $this->address_city . ', ' . $this->address_street;
-        
-        if ($this->address_additional) {
-            $address .= ' (' . $this->address_additional . ')';
-        }
-        
-        return $address;
+        return implode(', ', array_filter([
+            $this->address_zip,
+            $this->address_city,
+            $this->address_street,
+            $this->address_additional
+        ]));
     }
 
     /**
-     * Ellenőrzi, hogy a rendelés lemondható-e
-     * 
+     * Ellenőrzi, hogy a rendelés lemondható-e.
+     * Csak akkor mondható le, ha a státusz pending vagy processing.
+     *
      * @return bool
      */
     public function canBeCancelled()
     {
-        // Csak akkor lehet lemondani, ha még feldolgozás alatt vagy folyamatban van
-        return in_array($this->order_status, ['pending', 'processing']);
+        $cancellableStatuses = ['pending', 'processing'];
+        return in_array($this->order_status, $cancellableStatuses);
     }
 
     /**
-     * Ellenőrzi, hogy a rendelésre kiadható-e számla
-     * 
+     * Ellenőrzi, hogy a rendelés kifizetett-e.
+     *
      * @return bool
      */
-    public function canBeInvoiced()
+    public function isPaid()
     {
-        // Csak akkor lehet számlát készíteni, ha ki van fizetve és még nincs számlázva
-        return $this->payment_status === 'paid' && !$this->invoice_issued;
+        return $this->payment_status === 'paid';
     }
 
     /**
-     * Lekérdezi a legutóbbi 5 rendelést
-     * 
-     * @return \Illuminate\Database\Eloquent\Collection
+     * A rendelés létrehozása óta eltelt idő emberi olvasható formában.
+     *
+     * @return string
      */
-    public static function getRecentOrders($limit = 5)
+    public function getElapsedTimeAttribute()
     {
-        return self::with('user', 'items')
-            ->orderBy('created_at', 'desc')
-            ->limit($limit)
-            ->get();
+        return Carbon::parse($this->created_at)->diffForHumans();
     }
 
     /**
-     * Lekérdezi a felhasználó rendeléseit
-     * 
-     * @param int $userId
-     * @return \Illuminate\Database\Eloquent\Collection
+     * A rendelésben szereplő termékek száma.
+     *
+     * @return int
      */
-    public static function getUserOrders($userId)
+    public function getItemCountAttribute()
     {
-        return self::where('user_id', $userId)
-            ->orderBy('created_at', 'desc')
-            ->get();
+        return $this->items->sum('quantity');
+    }
+
+    /**
+     * Lekérdezi, hogy a rendelésben használtak-e fel hűségpontokat.
+     *
+     * @return bool
+     */
+    public function hasUsedLoyaltyPoints()
+    {
+        return $this->loyalty_points_used > 0;
+    }
+
+    /**
+     * Lekérdezi, hogy a rendelésért kaptak-e hűségpontokat.
+     *
+     * @return bool
+     */
+    public function hasEarnedLoyaltyPoints()
+    {
+        return $this->loyalty_points_earned > 0;
+    }
+
+    /**
+     * Kiszámolja a hűségpontokból származó kedvezményt.
+     *
+     * @return float
+     */
+    public function getLoyaltyDiscountAttribute()
+    {
+        // 10 pont = 100 Ft
+        return floor($this->loyalty_points_used / 10) * 100;
     }
 }

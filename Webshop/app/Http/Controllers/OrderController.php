@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\OrderConfirmation;
+use Illuminate\Support\Str;
 
 class OrderController extends Controller
 {
@@ -33,10 +34,34 @@ class OrderController extends Controller
         // Alapértelmezett szállítási költség (a checkout oldalon a felhasználó ezt módosíthatja)
         $shippingCost = 1490;
         
+        // Kedvezmény (kupon, hűségpont stb.)
+        $discount = 0;
+        $loyaltyDiscount = 0;
+        $availableLoyaltyPoints = 0;
+        
+        // Ha be van jelentkezve, akkor nézzük a hűségpontjait
+        if (Auth::check()) {
+            $user = Auth::user();
+            $availableLoyaltyPoints = $user->loyalty_points ?? 0;
+            
+            // Születésnapos felhasználóknak extra pont/kedvezmény
+            if (method_exists($user, 'hasBirthdayToday') && $user->hasBirthdayToday()) {
+                session()->flash('birthday', 'Boldog születésnapot! Ma 500 extra pontot kapsz a rendelésedre!');
+            }
+        }
+        
         // Végösszeg számítása
-        $total = $subtotal + $shippingCost;
+        $total = $subtotal + $shippingCost - $discount - $loyaltyDiscount;
 
-        return view('checkout', compact('cartItems', 'subtotal', 'shippingCost', 'total'));
+        return view('checkout', compact(
+            'cartItems', 
+            'subtotal', 
+            'shippingCost', 
+            'discount',
+            'loyaltyDiscount',
+            'availableLoyaltyPoints',
+            'total'
+        ));
     }
 
     /**
@@ -47,8 +72,8 @@ class OrderController extends Controller
      */
     public function store(Request $request)
     {
-        // Validálás
-        $validated = $request->validate([
+        // Alapvető validáció mindenkinek
+        $rules = [
             'firstname' => 'required|string|max:255',
             'lastname' => 'required|string|max:255',
             'email' => 'required|email|max:255',
@@ -62,8 +87,16 @@ class OrderController extends Controller
             'order_notes' => 'nullable|string',
             'terms_accepted' => 'required|accepted',
             'coupon_code' => 'nullable|string|max:50',
-            'save_address' => 'nullable|boolean',
-        ]);
+        ];
+
+        // Ha be van jelentkezve, további validáció
+        if (Auth::check()) {
+            $rules['save_address'] = 'nullable|boolean';
+            $rules['use_loyalty_points'] = 'nullable|boolean';
+            $rules['loyalty_points_amount'] = 'nullable|integer|min:10';
+        }
+
+        $validated = $request->validate($rules);
 
         // Ellenőrizzük, hogy van-e termék a kosárban
         if (!Session::has('cart') || empty(Session::get('cart'))) {
@@ -77,18 +110,60 @@ class OrderController extends Controller
         // Szállítási költség számítása
         $shippingCost = $this->calculateShippingCost($request->shipping_method);
         
-        // Kedvezmény számítása (egyszerűsített, valós környezetben kupon ellenőrzéssel)
+        // Kedvezmény számítása és hűségpont kezelés
         $discount = 0;
+        $loyaltyPointsUsed = 0;
+        $loyaltyPointsEarned = 0;
+        $isGuest = !Auth::check();
+        
+        // Ha bejelentkezett felhasználó
+        if (!$isGuest) {
+            $user = Auth::user();
+            
+            // Hűségpontok felhasználása, ha kérte
+            if ($request->has('use_loyalty_points') && $request->use_loyalty_points) {
+                $requestedPoints = (int) $request->loyalty_points_amount;
+                
+                if ($requestedPoints > 0 && $user->loyalty_points >= $requestedPoints) {
+                    // 10 pont = 100 Ft kedvezmény
+                    $pointsToUse = floor($requestedPoints / 10) * 10; // Kerekítés az alsó 10-re
+                    $loyaltyDiscount = $pointsToUse / 10 * 100;
+                    
+                    // Maximum a rendelés 30%-a
+                    $maxDiscount = $subtotal * 0.3;
+                    if ($loyaltyDiscount > $maxDiscount) {
+                        $loyaltyDiscount = $maxDiscount;
+                        $pointsToUse = floor($maxDiscount / 10) * 10;
+                    }
+                    
+                    $loyaltyPointsUsed = $pointsToUse;
+                    $discount += $loyaltyDiscount;
+                }
+            }
+            
+            // Új pontok számítása (alapesetben minden 1000 Ft után 1 pont)
+            $loyaltyPointsEarned = floor($subtotal / 1000);
+            
+            // Születésnapi bónusz
+            if (method_exists($user, 'hasBirthdayToday') && $user->hasBirthdayToday()) {
+                $loyaltyPointsEarned += 500; // Születésnapi bónusz
+            }
+            
+            // Extra pont lojális ügyfeleknek
+            if (property_exists($user, 'loyalty_points') && $user->loyalty_points >= 1000) { // Arany vagy platina tag
+                $loyaltyPointsEarned = ceil($loyaltyPointsEarned * 1.2); // 20% extra pont
+            }
+        }
         
         // Végösszeg számítása
         $total = $subtotal + $shippingCost - $discount;
+        if ($total < 0) $total = 0; // Biztosítjuk, hogy ne legyen negatív
 
         try {
             DB::beginTransaction();
             
             // Rendelés létrehozása
-            $order = new Order([
-                'user_id' => Auth::id(),
+            $orderData = [
                 'order_number' => Order::generateOrderNumber(),
                 'firstname' => $validated['firstname'],
                 'lastname' => $validated['lastname'],
@@ -97,19 +172,29 @@ class OrderController extends Controller
                 'address_zip' => $validated['address_zip'],
                 'address_city' => $validated['address_city'],
                 'address_street' => $validated['address_street'],
-                'address_additional' => $validated['address_additional'],
+                'address_additional' => $validated['address_additional'] ?? null,
                 'subtotal' => $subtotal,
                 'shipping_cost' => $shippingCost,
                 'discount' => $discount,
+                'loyalty_points_used' => $loyaltyPointsUsed,
+                'loyalty_points_earned' => $loyaltyPointsEarned,
                 'total' => $total,
                 'shipping_method' => $validated['shipping_method'],
                 'payment_method' => $validated['payment_method'],
                 'payment_status' => 'pending',
                 'order_status' => 'pending',
-                'order_notes' => $validated['order_notes'],
-                'coupon_code' => $validated['coupon_code'],
-            ]);
+                'order_notes' => $validated['order_notes'] ?? null,
+                'coupon_code' => $validated['coupon_code'] ?? null,
+                'is_guest' => $isGuest,
+                'guest_token' => $isGuest ? Str::random(32) : null
+            ];
             
+            // Ha be van jelentkezve, akkor hozzáadjuk a user_id-t
+            if (!$isGuest) {
+                $orderData['user_id'] = Auth::id();
+            }
+            
+            $order = new Order($orderData);
             $order->save();
             
             // Rendelési tételek mentése
@@ -142,40 +227,62 @@ class OrderController extends Controller
                 $product->save();
             }
             
-            // Ha a felhasználó kérte, mentsük el a szállítási címet
-            if (isset($validated['save_address']) && $validated['save_address']) {
+            // Ha bejelentkezett felhasználó
+            if (!$isGuest) {
                 $user = Auth::user();
-                $user->update([
-                    'phone' => $validated['phone'],
-                    'address_zip' => $validated['address_zip'],
-                    'address_city' => $validated['address_city'],
-                    'address_street' => $validated['address_street'],
-                    'address_additional' => $validated['address_additional'],
-                ]);
+                
+                // Ha kérte a cím mentését
+                if (isset($validated['save_address']) && $validated['save_address'] && $user) {
+                    $user->update([
+                        'phone' => $validated['phone'],
+                        'address_zip' => $validated['address_zip'],
+                        'address_city' => $validated['address_city'], 
+                        'address_street' => $validated['address_street'],
+                        'address_additional' => $validated['address_additional'] ?? null,
+                    ]);
+                }
+                
+                // Hűségpontok kezelése
+                if ($loyaltyPointsUsed > 0 && method_exists($user, 'useLoyaltyPoints')) {
+                    $user->useLoyaltyPoints($loyaltyPointsUsed);
+                }
+                
+                if ($loyaltyPointsEarned > 0 && method_exists($user, 'addLoyaltyPoints')) {
+                    $user->addLoyaltyPoints($loyaltyPointsEarned);
+                }
+            } else {
+                // Vendég rendelések esetén mentsük el a vendég tokent a sessionbe
+                Session::put('guest_order_' . $order->id, $order->guest_token);
             }
             
             // Fizetési mód kezelése
             if ($validated['payment_method'] == 'card') {
                 // Online fizetés esetén átirányítás a fizetési oldalra
-                // Valós implementációban itt integrálnánk pl. a SimplePay fizetési kaput
                 $paymentUrl = route('orders.payment', $order->id);
                 
                 DB::commit();
                 
                 // Kosár törlése
                 Session::forget('cart');
+                Session::forget('cart_count');
                 
                 return redirect()->to($paymentUrl);
             } else {
-                // Egyéb fizetési módok (utánvét, átutalás) esetén közvetlen befejezés
+                // Egyéb fizetési módok esetén közvetlen befejezés
                 
-                // Email küldése a rendelés visszaigazolásáról
-                Mail::to($order->email)->send(new OrderConfirmation($order));
+                // Email küldése
+                try {
+                    Mail::to($order->email)->send(new OrderConfirmation($order));
+                } catch (\Exception $e) {
+                    // Email küldési hiba esetén csak naplózzuk, de ne szakítsuk meg a folyamatot
+                    \Log::error('Hiba a rendelés visszaigazoló e-mail küldésekor: ' . $e->getMessage());
+                }
                 
                 DB::commit();
                 
                 // Kosár törlése
                 Session::forget('cart');
+                Session::forget('cart_count');
                 
                 return redirect()->route('orders.thankyou', $order->id)->with('success', 'Köszönjük a rendelést! A visszaigazolást elküldtük e-mailben.');
             }
@@ -196,8 +303,8 @@ class OrderController extends Controller
     {
         $order = Order::findOrFail($id);
         
-        // Ellenőrizzük, hogy a rendelés a bejelentkezett felhasználóhoz tartozik-e
-        if ($order->user_id != Auth::id()) {
+        // Ellenőrizzük a jogosultságot
+        if (!$this->canAccessOrder($order)) {
             abort(403, 'Nincs jogosultságod ehhez a rendeléshez.');
         }
         
@@ -206,8 +313,6 @@ class OrderController extends Controller
             return redirect()->route('orders.show', $order->id)->with('info', 'Ez a rendelés már ki van fizetve.');
         }
         
-        // Egyszerűsített fizetési oldal 
-        // Valós környezetben itt integrálnánk a valódi fizetési szolgáltatót
         return view('orders.payment', compact('order'));
     }
 
@@ -222,15 +327,22 @@ class OrderController extends Controller
     {
         $order = Order::findOrFail($id);
         
-        // Szimulált fizetési feldolgozás
-        // Valós környezetben itt feldolgoznánk a fizetési szolgáltató válaszát
+        // Ellenőrizzük a jogosultságot
+        if (!$this->canAccessOrder($order)) {
+            abort(403, 'Nincs jogosultságod ehhez a rendeléshez.');
+        }
         
+        // Szimulált fizetési feldolgozás
         $order->payment_status = 'paid';
         $order->order_status = 'processing';
         $order->save();
         
         // Email küldése a sikeres fizetésről
-        Mail::to($order->email)->send(new OrderConfirmation($order));
+        try {
+            Mail::to($order->email)->send(new OrderConfirmation($order));
+        } catch (\Exception $e) {
+            \Log::error('Hiba a fizetés visszaigazoló e-mail küldésekor: ' . $e->getMessage());
+        }
         
         return redirect()->route('orders.thankyou', $order->id)->with('success', 'A fizetés sikeres volt! A rendelésed feldolgozás alatt áll.');
     }
@@ -245,12 +357,15 @@ class OrderController extends Controller
     {
         $order = Order::with('items')->findOrFail($id);
         
-        // Ellenőrizzük, hogy a rendelés a bejelentkezett felhasználóhoz tartozik-e
-        if ($order->user_id != Auth::id()) {
+        // Ellenőrizzük a jogosultságot - Email cím alapú ellenőrzés vendégeknek is
+        if (!$this->canAccessOrder($order)) {
             abort(403, 'Nincs jogosultságod ehhez a rendeléshez.');
         }
         
-        return view('orders.thankyou', compact('order'));
+        // Itt továbbítjuk a rendelés tételeit a nézetnek
+        $orderItems = $order->items;
+        
+        return view('orders.thankyou', compact('order', 'orderItems'));
     }
 
     /**
@@ -260,6 +375,11 @@ class OrderController extends Controller
      */
     public function index()
     {
+        // Csak bejelentkezett felhasználók esetén
+        if (!Auth::check()) {
+            return redirect()->route('login')->with('error', 'A rendelések megtekintéséhez be kell jelentkezned.');
+        }
+        
         $orders = Order::where('user_id', Auth::id())
             ->orderBy('created_at', 'desc')
             ->paginate(10);
@@ -277,12 +397,15 @@ class OrderController extends Controller
     {
         $order = Order::with('items')->findOrFail($id);
         
-        // Ellenőrizzük, hogy a rendelés a bejelentkezett felhasználóhoz tartozik-e
-        if ($order->user_id != Auth::id() && !Auth::user()->isAdmin()) {
+        // Ellenőrizzük a jogosultságot
+        if (!$this->canAccessOrder($order)) {
             abort(403, 'Nincs jogosultságod ehhez a rendeléshez.');
         }
         
-        return view('orders.show', compact('order'));
+        // Itt is továbbítjuk a rendelés tételeit a nézetnek
+        $orderItems = $order->items;
+        
+        return view('orders.show', compact('order', 'orderItems'));
     }
 
     /**
@@ -295,8 +418,8 @@ class OrderController extends Controller
     {
         $order = Order::findOrFail($id);
         
-        // Ellenőrizzük, hogy a rendelés a bejelentkezett felhasználóhoz tartozik-e
-        if ($order->user_id != Auth::id() && !Auth::user()->isAdmin()) {
+        // Ellenőrizzük a jogosultságot
+        if (!$this->canAccessOrder($order)) {
             abort(403, 'Nincs jogosultságod ehhez a rendeléshez.');
         }
         
@@ -320,6 +443,16 @@ class OrderController extends Controller
                 }
             }
             
+            // Ha hűségpontokat használt, azokat visszaadjuk
+            if (!$order->is_guest && $order->loyalty_points_used > 0 && $order->user && method_exists($order->user, 'addLoyaltyPoints')) {
+                $order->user->addLoyaltyPoints($order->loyalty_points_used);
+            }
+            
+            // Ha új hűségpontokat kapott, azokat levonjuk
+            if (!$order->is_guest && $order->loyalty_points_earned > 0 && $order->user && method_exists($order->user, 'useLoyaltyPoints')) {
+                $order->user->useLoyaltyPoints($order->loyalty_points_earned);
+            }
+            
             DB::commit();
             
             return redirect()->back()->with('success', 'A rendelést sikeresen lemondtad.');
@@ -328,6 +461,57 @@ class OrderController extends Controller
             DB::rollBack();
             return redirect()->back()->with('error', 'Hiba történt a rendelés lemondásakor: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Vendég rendelés követése (rendelés nyomon követési oldal).
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function trackOrder(Request $request)
+    {
+        $validated = $request->validate([
+            'email' => 'required|email',
+            'order_number' => 'required|string',
+        ]);
+        
+        $order = Order::where('email', $validated['email'])
+                     ->where('order_number', $validated['order_number'])
+                     ->first();
+        
+        if (!$order) {
+            return redirect()->back()->with('error', 'A megadott rendelés nem található.');
+        }
+        
+        return redirect()->route('orders.show', $order->id)->with([
+            'email' => $validated['email'],
+            'order_number' => $validated['order_number']
+        ]);
+    }
+
+    /**
+     * Ellenőrzi, hogy a felhasználónak van-e jogosultsága a rendeléshez.
+     * Vendégek esetén email cím alapján, bejelentkezett felhasználók esetén user_id alapján.
+     *
+     * @param  \App\Models\Order  $order
+     * @return boolean
+     */
+    private function canAccessOrder(Order $order)
+    {
+        // Adminoknak mindig van jogosultsága
+        if (Auth::check() && method_exists(Auth::user(), 'isAdmin') && Auth::user()->isAdmin()) {
+            return true;
+        }
+        
+        // Bejelentkezett felhasználók esetén
+        if (Auth::check()) {
+            return $order->user_id == Auth::id();
+        }
+        
+        // Vendégek esetén
+        return Session::has('guest_order_' . $order->id) || 
+               (request()->has('email') && request()->has('order_number') && 
+                $order->email == request()->email && $order->order_number == request()->order_number);
     }
 
     /**

@@ -104,5 +104,28 @@ Route::post('/cart/remove', [CartController::class, 'remove'])->name('cart.remov
 Route::get('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
 Route::get('/checkout', [CartController::class, 'checkout'])->name('cart.checkout');
 
+
+// Rendelés route-ok
+Route::middleware(['auth'])->group(function () {
+    // Checkout oldal
+    Route::get('/checkout', [App\Http\Controllers\OrderController::class, 'checkout'])->name('checkout');
+    
+    // Rendelés létrehozása
+    Route::post('/orders', [App\Http\Controllers\OrderController::class, 'store'])->name('orders.store');
+    
+    // Fizetési és köszönő oldalak
+    Route::get('/orders/{id}/payment', [App\Http\Controllers\OrderController::class, 'payment'])->name('orders.payment');
+    Route::post('/orders/{id}/payment', [App\Http\Controllers\OrderController::class, 'processPayment'])->name('orders.process-payment');
+    Route::get('/orders/{id}/thankyou', [App\Http\Controllers\OrderController::class, 'thankyou'])->name('orders.thankyou');
+    
+    // Felhasználó rendeléseinek kezelése
+    Route::get('/orders', [App\Http\Controllers\OrderController::class, 'index'])->name('orders.index');
+    Route::get('/orders/{id}', [App\Http\Controllers\OrderController::class, 'show'])->name('orders.show');
+    Route::post('/orders/{id}/cancel', [App\Http\Controllers\OrderController::class, 'cancel'])->name('orders.cancel');
+});
+
+
+// A meglévő cart.checkout mellett
+Route::get('/layouts/admin/cart/checkout', [CartController::class, 'checkoutView'])->name('layouts.admin.cart.checkout');
 // ✅ Autentikációs útvonalak (Laravel Breeze/Fortify)
 require __DIR__.'/auth.php';

@@ -109,13 +109,44 @@ class CartController extends Controller
      * Megrendelés feldolgozása - átirányítás a pénztárhoz
      */
     public function checkout()
-    {
-        // Ellenőrizzük, hogy van-e termék a kosárban
-        if (!session()->has('cart') || count(session()->get('cart')) == 0) {
-            return redirect()->route('layouts.admincart.index')->with('error', 'A kosár üres!');
-        }
-        
-        // Itt később átirányíthatunk a checkout oldalra
-        return redirect()->route('layouts.admin.cart.index')->with('info', 'A pénztár funkció hamarosan elérhető lesz!');
+{
+    // Ellenőrizzük, hogy van-e termék a kosárban
+    if (!session()->has('cart') || count(session()->get('cart')) == 0) {
+        return redirect()->route('cart.index')->with('error', 'A kosár üres!');
     }
+    
+    // Ugrás közvetlenül a checkout nézetre
+    return view('layouts.admin.cart.checkout')
+        ->with('info', 'A pénztár funkció hamarosan elérhető lesz!');
+}
+public function checkoutView()
+{
+    // Ellenőrizzük, hogy van-e termék a kosárban
+    $cart = session()->get('cart', []);
+    
+    if (empty($cart)) {
+        return redirect()->route('cart.index')->with('error', 'A kosár üres!');
+    }
+    
+    $cartItems = [];
+    $subtotal = 0;
+    
+    // Kosár tételek részleteinek lekérése
+    foreach ($cart as $id => $details) {
+        $product = Product::find($id);
+        
+        if ($product) {
+            $cartItems[$id] = $details;
+            $cartItems[$id]['name'] = $product->name; // Ha kell a termék neve
+            $subtotal += $details['price'] * $details['quantity'];
+        }
+    }
+    
+    // Szállítási költség és végösszeg számítása
+    $shippingCost = 1490; // Alapértelmezett szállítási díj
+    $total = $subtotal + $shippingCost;
+    
+    return view('layouts.admin.cart.checkout', compact('cartItems', 'subtotal', 'shippingCost', 'total'));
+}
+
 }
