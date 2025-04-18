@@ -136,8 +136,11 @@ public function checkoutView()
         $product = Product::find($id);
         
         if ($product) {
-            $cartItems[$id] = $details;
-            $cartItems[$id]['name'] = $product->name; // Ha kell a termék neve
+            $cartItems[$id] = [
+                'name' => $product->name,
+                'price' => $details['price'],
+                'quantity' => $details['quantity']
+            ];
             $subtotal += $details['price'] * $details['quantity'];
         }
     }
@@ -146,7 +149,18 @@ public function checkoutView()
     $shippingCost = 1490; // Alapértelmezett szállítási díj
     $total = $subtotal + $shippingCost;
     
-    return view('layouts.admin.cart.checkout', compact('cartItems', 'subtotal', 'shippingCost', 'total'));
+    // További opcionális változók
+    $discount = 0;
+    $loyaltyDiscount = 0;
+    
+    return view('layouts.admin.cart.checkout', compact(
+        'cartItems', 
+        'subtotal', 
+        'shippingCost', 
+        'total',
+        'discount',
+        'loyaltyDiscount'
+    ));
 }
 
 }

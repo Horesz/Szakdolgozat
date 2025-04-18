@@ -128,4 +128,16 @@ Route::middleware(['auth'])->group(function () {
 // A meglévő cart.checkout mellett
 Route::get('/layouts/admin/cart/checkout', [CartController::class, 'checkoutView'])->name('layouts.admin.cart.checkout');
 // ✅ Autentikációs útvonalak (Laravel Breeze/Fortify)
+
+
+
+
+
+// orders ADMIN FELÜLET
+Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(function () {
+    Route::get('/orders', [OrderManagementController::class, 'index'])->name('orders.index');
+    Route::get('/orders/{order}', [OrderManagementController::class, 'show'])->name('orders.show');
+    Route::patch('/orders/{order}/status', [OrderManagementController::class, 'updateStatus'])->name('orders.update-status');
+    Route::patch('/orders/{order}/payment-status', [OrderManagementController::class, 'updatePaymentStatus'])->name('orders.update-payment-status');
+});
 require __DIR__.'/auth.php';

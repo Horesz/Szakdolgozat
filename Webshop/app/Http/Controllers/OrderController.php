@@ -284,7 +284,7 @@ class OrderController extends Controller
                 Session::forget('cart');
                 Session::forget('cart_count');
                 
-                return redirect()->route('orders.thankyou', $order->id)->with('success', 'Köszönjük a rendelést! A visszaigazolást elküldtük e-mailben.');
+                return redirect()->route('cart.thankyou', $order->id)->with('success', 'Köszönjük a rendelést! A visszaigazolást elküldtük e-mailben.');
             }
             
         } catch (\Exception $e) {

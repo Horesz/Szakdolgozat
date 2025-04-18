@@ -30,10 +30,23 @@
     
     @if($user->role === 'munkatars')
     <div class="alert alert-info mt-4">
-        Munkatárs vagy.
+        Munkatárs felhasználó.
         {{-- <a href="{{ route('admin.dashboard') }}" class="btn btn-danger">Adminisztrációs felület</a> --}}
     </div>
     @endif
+    @if($user->role === 'admin')
+    <div class="alert alert-info mt-4">
+        Adminisztrátor felhasználó.
+        {{-- <a href="{{ route('admin.dashboard') }}" class="btn btn-danger">Adminisztrációs felület</a> --}}
+    </div>
+    @endif
+    @if($user->role === 'user')
+    <div class="alert alert-info mt-4">
+        Üdvözlünk a webshopban. Jó nézelődést.
+        {{-- <a href="{{ route('admin.dashboard') }}" class="btn btn-danger">Adminisztrációs felület</a> --}}
+    </div>
+    @endif
+
     <!-- Profil kártya -->
     <div class="card mt-4">
         <div class="card-header">Személyes adati: </div>

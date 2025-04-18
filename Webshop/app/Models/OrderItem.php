@@ -17,8 +17,8 @@ class OrderItem extends Model
     protected $fillable = [
         'order_id',
         'product_id',
-        'name',
-        'price',
+        'product_name', // Módosítva
+        'product_price',
         'quantity',
         'subtotal'
     ];
