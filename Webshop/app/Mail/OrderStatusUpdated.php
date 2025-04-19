@@ -10,18 +10,24 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class OrderConfirmation extends Mailable
+class OrderStatusUpdated extends Mailable
 {
     use Queueable, SerializesModels;
 
     public $order;
+    public $oldStatus;
+    public $newStatus;
+    public $isPaymentStatusUpdate;
 
     /**
      * Create a new message instance.
      */
-    public function __construct(Order $order)
+    public function __construct(Order $order, $oldStatus, $newStatus, $isPaymentStatusUpdate = false)
     {
         $this->order = $order;
+        $this->oldStatus = $oldStatus;
+        $this->newStatus = $newStatus;
+        $this->isPaymentStatusUpdate = $isPaymentStatusUpdate;
     }
 
     /**
@@ -29,8 +35,9 @@ class OrderConfirmation extends Mailable
      */
     public function envelope(): Envelope
     {
+        $updateType = $this->isPaymentStatusUpdate ? 'fizetési státusz' : 'rendelési státusz';
         return new Envelope(
-            subject: 'Rendelésed visszaigazolása - #' . $this->order->order_number,
+            subject: 'Rendelésed státusza megváltozott - ' . $this->order->order_number,
         );
     }
 
@@ -40,7 +47,7 @@ class OrderConfirmation extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'emails.order-confirmation',
+            view: 'emails.order-status-updated',
         );
     }
 

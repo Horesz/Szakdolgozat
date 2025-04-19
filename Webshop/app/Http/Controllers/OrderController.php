@@ -284,7 +284,8 @@ class OrderController extends Controller
                 Session::forget('cart');
                 Session::forget('cart_count');
                 
-                return redirect()->route('cart.thankyou', $order->id)->with('success', 'Köszönjük a rendelést! A visszaigazolást elküldtük e-mailben.');
+                // Átirányítás a rendeléseim oldalra sikeres üzenettel
+                return redirect()->route('orders.index')->with('success', 'Köszönjük a rendelést! A visszaigazolást elküldtük e-mailben.');
             }
             
         } catch (\Exception $e) {
@@ -313,7 +314,8 @@ class OrderController extends Controller
             return redirect()->route('orders.show', $order->id)->with('info', 'Ez a rendelés már ki van fizetve.');
         }
         
-        return view('orders.payment', compact('order'));
+        // Módosítva a helyes nézet elérési útra a képernyőmentésed alapján
+        return view('layouts.orders.payment', compact('order'));
     }
 
     /**
@@ -344,7 +346,8 @@ class OrderController extends Controller
             \Log::error('Hiba a fizetés visszaigazoló e-mail küldésekor: ' . $e->getMessage());
         }
         
-        return redirect()->route('orders.thankyou', $order->id)->with('success', 'A fizetés sikeres volt! A rendelésed feldolgozás alatt áll.');
+        // Átirányítás a rendeléseim oldalra sikeres üzenettel
+        return redirect()->route('orders.index')->with('success', 'A fizetés sikeres volt! Rendelésed feldolgozás alatt áll.');
     }
 
     /**
@@ -365,7 +368,8 @@ class OrderController extends Controller
         // Itt továbbítjuk a rendelés tételeit a nézetnek
         $orderItems = $order->items;
         
-        return view('orders.thankyou', compact('order', 'orderItems'));
+        // Módosítva a helyes útvonalra
+        return view('layouts.orders.thankyou', compact('order', 'orderItems'));
     }
 
     /**
@@ -384,7 +388,7 @@ class OrderController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate(10);
         
-        return view('orders.index', compact('orders'));
+        return view('layouts.orders.index', compact('orders'));
     }
 
     /**
@@ -405,7 +409,7 @@ class OrderController extends Controller
         // Itt is továbbítjuk a rendelés tételeit a nézetnek
         $orderItems = $order->items;
         
-        return view('orders.show', compact('order', 'orderItems'));
+        return view('layouts.orders.show', compact('order', 'orderItems'));
     }
 
     /**

@@ -42,7 +42,7 @@
                     <hr class="my-4">
                     
                     <!-- Fizetési űrlap (szimulált) -->
-                    <form action="{{ route('orders.processPayment', $order->id) }}" method="POST" id="payment-form">
+                    <form action="{{ route('orders.process-payment', $order->id) }}" method="POST" id="payment-form">
                         @csrf
                         
                         <div class="mb-4">

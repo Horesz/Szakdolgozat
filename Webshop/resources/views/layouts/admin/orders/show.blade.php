@@ -31,27 +31,38 @@
                     <hr>
 
                     <h5>Rendelt termékek</h5>
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Termék</th>
-                                <th>Mennyiség</th>
-                                <th>Egységár</th>
-                                <th>Összesen</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($order->items as $item)
-                            <tr>
-                                <td>{{ $item->product_name }}</td>
-                                <td>{{ $item->quantity }}</td>
-                                <td>{{ number_format($item->product_price, 0, ',', ' ') }} Ft</td>
-                                <td>{{ number_format($item->subtotal, 0, ',', ' ') }} Ft</td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-
+<table class="table">
+    <thead>
+        <tr>
+            <th>Termék</th>
+            <th>Mennyiség</th>
+            <th>Egységár</th>
+            <th>Összesen</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach($order->items as $item)
+        <tr>
+            <td>
+                <div class="d-flex align-items-center">
+                    @if($item->product && $item->product->image_path)
+                        <img src="{{ asset('storage/'.$item->product->image_path) }}" alt="{{ $item->product_name }}" 
+                             class="img-thumbnail me-3" style="width: 60px; height: 60px; object-fit: cover;" 
+                             onerror="this.onerror=null; this.src='{{ asset('images/no-image.png') }}';" />
+                    @else
+                        <img src="{{ asset('images/no-image.png') }}" alt="Nincs kép" 
+                             class="img-thumbnail me-3" style="width: 60px; height: 60px; object-fit: cover;" />
+                    @endif
+                    <span>{{ $item->product_name }}</span>
+                </div>
+            </td>
+            <td>{{ $item->quantity }}</td>
+            <td>{{ number_format($item->product_price, 0, ',', ' ') }} Ft</td>
+            <td>{{ number_format($item->subtotal, 0, ',', ' ') }} Ft</td>
+        </tr>
+        @endforeach
+    </tbody>
+</table>
                     <hr>
 
                     <div class="row">

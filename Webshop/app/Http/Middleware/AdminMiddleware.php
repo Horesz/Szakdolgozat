@@ -8,17 +8,19 @@ use Illuminate\Support\Facades\Auth;
 
 class AdminMiddleware
 {
-   /**
+    /**
      * Handle an incoming request.
      *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \Closure  $next
+     * @return mixed
      */
-    public function handle(Request $request, Closure $next): Response
+    public function handle(Request $request, Closure $next)
     {
-        if (Auth::check() && Auth::user()->role == 'admin') {
+        if (Auth::check() && Auth::user()->role === 'admin') {
             return $next($request);
         }
 
-        return redirect('/')->with('error', 'Nincs jogosultságod ehhez a művelethez!');
+        abort(403, 'Nincs jogosultságod ehhez az oldalhoz.');
     }
 }

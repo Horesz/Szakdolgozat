@@ -159,9 +159,15 @@
                                             <tr>
                                                 <td class="ps-4">
                                                     <div class="d-flex align-items-center">
-                                                        <img src="{{ asset($item->image_path) }}" alt="{{ $item->product_name }}" 
-                                                             class="img-thumbnail me-3" style="width: 60px; height: 60px; object-fit: cover;" />
-                                                        <div>
+                                                        @if($item->product && $item->product->image_path)
+                                                            <img src="{{ asset('storage/'.$item->product->image_path) }}" alt="{{ $item->product_name }}" 
+                                                                class="img-thumbnail me-3" style="width: 60px; height: 60px; object-fit: cover;" 
+                                                                onerror="this.onerror=null; this.src='{{ asset('images/no-image.png') }}';" />
+                                                        @else
+                                                            <img src="{{ asset('images/no-image.png') }}" alt="Nincs kép" 
+                                                                class="img-thumbnail me-3" style="width: 60px; height: 60px; object-fit: cover;" />
+                                                        @endif
+                                                    <div>
                                                             <h6 class="fw-bold mb-0">
                                                                 @if($item->product)
                                                                     <a href="{{ route('products.show', $item->product_id) }}" class="text-dark text-decoration-none">

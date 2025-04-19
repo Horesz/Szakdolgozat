@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('layouts.app')
 
 @section('title', 'Rendelések kezelése')
 
@@ -85,4 +85,5 @@
         </div>
     </div>
 </div>
+
 @endsection

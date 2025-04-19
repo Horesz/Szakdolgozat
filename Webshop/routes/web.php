@@ -10,6 +10,8 @@ use App\Http\Controllers\ContactController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\NewsletterController;
+use App\Http\Controllers\OrderManagmentController;
+
 use Illuminate\Support\Facades\Route;
 
 // ✅ Főoldal (csak 1 db legyen!)
@@ -116,6 +118,7 @@ Route::middleware(['auth'])->group(function () {
     // Fizetési és köszönő oldalak
     Route::get('/orders/{id}/payment', [App\Http\Controllers\OrderController::class, 'payment'])->name('orders.payment');
     Route::post('/orders/{id}/payment', [App\Http\Controllers\OrderController::class, 'processPayment'])->name('orders.process-payment');
+    Route::post('/orders/{id}/payment', [App\Http\Controllers\OrderController::class, 'processPayment'])->name('orders.process-payment');
     Route::get('/orders/{id}/thankyou', [App\Http\Controllers\OrderController::class, 'thankyou'])->name('orders.thankyou');
     
     // Felhasználó rendeléseinek kezelése
@@ -134,10 +137,10 @@ Route::get('/layouts/admin/cart/checkout', [CartController::class, 'checkoutView
 
 
 // orders ADMIN FELÜLET
-Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(function () {
-    Route::get('/orders', [OrderManagementController::class, 'index'])->name('orders.index');
-    Route::get('/orders/{order}', [OrderManagementController::class, 'show'])->name('orders.show');
-    Route::patch('/orders/{order}/status', [OrderManagementController::class, 'updateStatus'])->name('orders.update-status');
-    Route::patch('/orders/{order}/payment-status', [OrderManagementController::class, 'updatePaymentStatus'])->name('orders.update-payment-status');
+Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () {
+    Route::get('/orders', [OrderManagmentController::class, 'index'])->name('orders.index');
+    Route::get('/orders/{order}', [OrderManagmentController::class, 'show'])->name('orders.show');
+    Route::patch('/orders/{order}/status', [OrderManagmentController::class, 'updateStatus'])->name('orders.update-status');
+    Route::patch('/orders/{order}/payment-status', [OrderManagmentController::class, 'updatePaymentStatus'])->name('orders.update-payment-status');
 });
 require __DIR__.'/auth.php';

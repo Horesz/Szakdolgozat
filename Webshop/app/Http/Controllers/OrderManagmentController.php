@@ -1,15 +1,22 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use Illuminate\Http\Request;
-
-class OrderManagementController extends Controller
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\OrderStatusUpdated;
+class OrderManagmentController extends Controller
 {
     public function index(Request $request)
     {
+        // Jogosultság ellenőrzése
+        if (!Auth::check() || (!Auth::user()->isAdmin() && !Auth::user()->isMunkatars())) {
+            abort(403, 'Nincs jogosultsága megtekinteni ezt az oldalt.');
+        }
+
         $query = Order::query();
 
         // Szűrési opciók
@@ -37,45 +44,88 @@ class OrderManagementController extends Controller
 
         $orders = $query->paginate(20);
 
-        return view('admin.orders.index', compact('orders'));
+        return view('layouts.admin.orders.index', compact('orders'));
     }
 
     public function show(Order $order)
     {
-        return view('admin.orders.show', compact('order'));
+        // Jogosultság ellenőrzése
+        if (!Auth::check() || (!Auth::user()->isAdmin() && !Auth::user()->isMunkatars())) {
+            abort(403, 'Nincs jogosultsága megtekinteni ezt az oldalt.');
+        }
+
+        return view('layouts.admin.orders.show', compact('order'));
     }
 
     public function updateStatus(Request $request, Order $order)
     {
+        // Jogosultság ellenőrzése
+        if (!Auth::check() || (!Auth::user()->isAdmin() && !Auth::user()->isMunkatars())) {
+            abort(403, 'Nincs jogosultsága módosítani a rendelés státuszát.');
+        }
+
         $validated = $request->validate([
             'order_status' => 'required|in:pending,processing,shipped,delivered,completed,cancelled,refunded'
         ]);
 
-        $order->update([
-            'order_status' => $validated['order_status']
-        ]);
+        // Régi státusz mentése az e-mail értesítéshez
+        $oldStatus = $order->order_status;
+        $newStatus = $validated['order_status'];
+
+        // Csak akkor küldjünk e-mailt, ha tényleg változott a státusz
+        if ($oldStatus !== $newStatus) {
+            $order->update([
+                'order_status' => $newStatus
+            ]);
+
+            // E-mail küldése a rendelőnek
+            try {
+                Mail::to($order->email)->send(new OrderStatusUpdated($order, $oldStatus, $newStatus));
+            } catch (\Exception $e) {
+                \Log::error('Hiba a státusz frissítési e-mail küldésekor: ' . $e->getMessage());
+            }
+
+            return redirect()->route('admin.orders.show', $order)
+                ->with('success', 'Rendelés státusza sikeresen módosítva és értesítő e-mail elküldve.');
+        }
 
         return redirect()->route('admin.orders.show', $order)
-            ->with('success', 'Rendelés státusza sikeresen módosítva.');
+            ->with('info', 'Rendelés státusza nem változott.');
     }
 
     public function updatePaymentStatus(Request $request, Order $order)
     {
+        // Jogosultság ellenőrzése
+        if (!Auth::check() || (!Auth::user()->isAdmin() && !Auth::user()->isMunkatars())) {
+            abort(403, 'Nincs jogosultsága módosítani a fizetési státuszt.');
+        }
+
         $validated = $request->validate([
             'payment_status' => 'required|in:pending,paid,failed,refunded'
         ]);
 
-        $order->update([
-            'payment_status' => $validated['payment_status']
-        ]);
+        // Régi státusz mentése az e-mail értesítéshez
+        $oldStatus = $order->payment_status;
+        $newStatus = $validated['payment_status'];
+
+        // Csak akkor küldjünk e-mailt, ha tényleg változott a státusz
+        if ($oldStatus !== $newStatus) {
+            $order->update([
+                'payment_status' => $newStatus
+            ]);
+
+            // E-mail küldése a rendelőnek fizetési státusz változásáról
+            try {
+                Mail::to($order->email)->send(new OrderStatusUpdated($order, $oldStatus, $newStatus, true));
+            } catch (\Exception $e) {
+                \Log::error('Hiba a fizetési státusz frissítési e-mail küldésekor: ' . $e->getMessage());
+            }
+
+            return redirect()->route('admin.orders.show', $order)
+                ->with('success', 'Fizetési státusz sikeresen módosítva és értesítő e-mail elküldve.');
+        }
 
         return redirect()->route('admin.orders.show', $order)
-            ->with('success', 'Fizetési státusz sikeresen módosítva.');
-    }
-
-    public function export(Request $request)
-    {
-        // Exportálás CSV-be
-        // Használhatsz package-et mint Maatwebsite\Excel
+            ->with('info', 'Fizetési státusz nem változott.');
     }
 }

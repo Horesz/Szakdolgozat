@@ -88,46 +88,134 @@
                                     {{-- Admin menü - Rendelések szekció --}}
                                     <li><hr class="dropdown-divider"></li>
                                     <li><span class="dropdown-header">Rendelések</span></li>
-                                    <li><a class="dropdown-item" href="{{ route('admin.orders.index') }}">
-                                        <i class="fas fa-shopping-cart fa-fw me-1"></i> Rendelések kezelése
-                                    </a></li>
+                                    
+                                    @if(request()->routeIs('admin.orders.*'))
+                                        <li>
+                                            <span class="dropdown-item active">
+                                                <i class="fas fa-shopping-cart fa-fw me-1"></i> Rendelések kezelése
+                                            </span>
+                                        </li>
+                                    @else
+                                        <li>
+                                            <a class="dropdown-item" href="{{ route('admin.orders.index') }}">
+                                                <i class="fas fa-shopping-cart fa-fw me-1"></i> Rendelések kezelése
+                                            </a>
+                                        </li>
+                                    @endif
                                     
                                     {{-- Termékek szekció --}}
                                     <li><hr class="dropdown-divider"></li>
                                     <li><span class="dropdown-header">Termékek</span></li>
-                                    <li><a class="dropdown-item" href="{{ route('admin.products.index') }}">
-                                        <i class="fas fa-box fa-fw me-1"></i> Termékek kezelése
-                                    </a></li>
-                                    <li><a class="dropdown-item" href="{{ route('admin.products.create') }}">
-                                        <i class="fas fa-plus-circle fa-fw me-1"></i> Új termék hozzáadása
-                                    </a></li>
+                                    
+                                    @if(request()->routeIs('admin.products.index'))
+                                        <li>
+                                            <span class="dropdown-item active">
+                                                <i class="fas fa-box fa-fw me-1"></i> Termékek kezelése
+                                            </span>
+                                        </li>
+                                    @else
+                                        <li>
+                                            <a class="dropdown-item" href="{{ route('admin.products.index') }}">
+                                                <i class="fas fa-box fa-fw me-1"></i> Termékek kezelése
+                                            </a>
+                                        </li>
+                                    @endif
+                                    
+                                    @if(request()->routeIs('admin.products.create'))
+                                        <li>
+                                            <span class="dropdown-item active">
+                                                <i class="fas fa-plus-circle fa-fw me-1"></i> Új termék hozzáadása
+                                            </span>
+                                        </li>
+                                    @else
+                                        <li>
+                                            <a class="dropdown-item" href="{{ route('admin.products.create') }}">
+                                                <i class="fas fa-plus-circle fa-fw me-1"></i> Új termék hozzáadása
+                                            </a>
+                                        </li>
+                                    @endif
                                     
                                     {{-- Kategóriák szekció --}}
                                     <li><hr class="dropdown-divider"></li>
                                     <li><span class="dropdown-header">Kategóriák</span></li>
-                                    <li><a class="dropdown-item" href="{{ route('admin.categories.index') }}">
-                                        <i class="fas fa-folder fa-fw me-1"></i> Kategóriák kezelése
-                                    </a></li>
-                                    <li><a class="dropdown-item" href="{{ route('admin.categories.create') }}">
-                                        <i class="fas fa-folder-plus fa-fw me-1"></i> Új kategória hozzáadása
-                                    </a></li>
+                                    
+                                    @if(request()->routeIs('admin.categories.index'))
+                                        <li>
+                                            <span class="dropdown-item active">
+                                                <i class="fas fa-folder fa-fw me-1"></i> Kategóriák kezelése
+                                            </span>
+                                        </li>
+                                    @else
+                                        <li>
+                                            <a class="dropdown-item" href="{{ route('admin.categories.index') }}">
+                                                <i class="fas fa-folder fa-fw me-1"></i> Kategóriák kezelése
+                                            </a>
+                                        </li>
+                                    @endif
+                                    
+                                    @if(request()->routeIs('admin.categories.create'))
+                                        <li>
+                                            <span class="dropdown-item active">
+                                                <i class="fas fa-folder-plus fa-fw me-1"></i> Új kategória hozzáadása
+                                            </span>
+                                        </li>
+                                    @else
+                                        <li>
+                                            <a class="dropdown-item" href="{{ route('admin.categories.create') }}">
+                                                <i class="fas fa-folder-plus fa-fw me-1"></i> Új kategória hozzáadása
+                                            </a>
+                                        </li>
+                                    @endif
                                     <li><hr class="dropdown-divider"></li>
                                 @endif
                                 
                                 @if(Auth::user()->role == 'munkatars') 
                                     <li><span class="dropdown-header">Munkatársi feladatok</span></li>
-                                    <li><a class="dropdown-item" href="{{ route('admin.orders.index') }}">
-                                        <i class="fas fa-shopping-cart fa-fw me-1"></i> Rendelések kezelése
-                                    </a></li>
+                                    
+                                    @if(request()->routeIs('admin.orders.*'))
+                                        <li>
+                                            <span class="dropdown-item active">
+                                                <i class="fas fa-shopping-cart fa-fw me-1"></i> Rendelések kezelése
+                                            </span>
+                                        </li>
+                                    @else
+                                        <li>
+                                            <a class="dropdown-item" href="{{ route('admin.orders.index') }}">
+                                                <i class="fas fa-shopping-cart fa-fw me-1"></i> Rendelések kezelése
+                                            </a>
+                                        </li>
+                                    @endif
                                     <li><hr class="dropdown-divider"></li>
                                 @endif
                                 
-                                <li><a class="dropdown-item" href="{{ route('dashboard') }}">
-                                    <i class="fas fa-user-circle fa-fw me-1"></i> Profil
-                                </a></li>
-                                <li><a class="dropdown-item" href="/orders">
-                                    <i class="fas fa-shopping-bag fa-fw me-1"></i> Rendeléseim
-                                </a></li>
+                                @if(request()->routeIs('dashboard'))
+                                    <li>
+                                        <span class="dropdown-item active">
+                                            <i class="fas fa-user-circle fa-fw me-1"></i> Profil
+                                        </span>
+                                    </li>
+                                @else
+                                    <li>
+                                        <a class="dropdown-item" href="{{ route('dashboard') }}">
+                                            <i class="fas fa-user-circle fa-fw me-1"></i> Profil
+                                        </a>
+                                    </li>
+                                @endif
+                                
+                                @if(request()->routeIs('orders.index'))
+                                    <li>
+                                        <span class="dropdown-item active">
+                                            <i class="fas fa-shopping-bag fa-fw me-1"></i> Rendeléseim
+                                        </span>
+                                    </li>
+                                @else
+                                    <li>
+                                        <a class="dropdown-item" href="/orders">
+                                            <i class="fas fa-shopping-bag fa-fw me-1"></i> Rendeléseim
+                                        </a>
+                                    </li>
+                                @endif
+                                
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
                                     <form action="/logout" method="POST">
@@ -147,15 +235,22 @@
 </nav>
 
 <style>
-/* A korábbi stílusok változatlanok maradnak */
+/* Aktív menüpont stílusa */
+.dropdown-item.active {
+    background-color: #f8f9fa;
+    color: #212529;
+    font-weight: bold;
+    cursor: default;
+}
 </style>
 
 {{-- Bootstrap Tooltip inicializálás --}}
 <script>
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', function() {
+    // Bootstrap tooltips inicializálása
     var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-        return new bootstrap.Tooltip(tooltipTriggerEl)
+    var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
     });
 });
 </script>
