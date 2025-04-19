@@ -25,7 +25,7 @@
         <div class="row align-items-center">
             <div class="col-lg-6 mb-4 mb-lg-0">
                 <div class="ratio ratio-16x9 rounded overflow-hidden shadow-lg">
-                    <img src="{{ asset('images/about/founders.jpg') }}" alt="Alapítók" class="img-cover">
+                    <img src="{{ asset('images/about/cv_kep.png') }}" alt="Alapítók" class="img-cover">
                 </div>
             </div>
             <div class="col-lg-6">
@@ -111,7 +111,7 @@
             <div class="col-md-6 col-lg-3">
                 <div class="card team-card border-0 shadow-sm h-100">
                     <div class="position-relative">
-                        <img src="{{ asset('images/team/balint.jpg') }}" class="card-img-top team-img" alt="Nagy Bálint">
+                        <img src="{{ asset('images/about/Balint.png') }}" class="card-img-top team-img" alt="Nagy Bálint">
                         <div class="team-social position-absolute bottom-0 end-0 p-3">
                             <a href="#" class="btn btn-sm btn-primary rounded-circle me-1"><i class="fab fa-linkedin-in"></i></a>
                             <a href="#" class="btn btn-sm btn-primary rounded-circle"><i class="fab fa-twitter"></i></a>
@@ -129,7 +129,7 @@
             <div class="col-md-6 col-lg-3">
                 <div class="card team-card border-0 shadow-sm h-100">
                     <div class="position-relative">
-                        <img src="{{ asset('images/team/mark.jpg') }}" class="card-img-top team-img" alt="Kovács Márk">
+                        <img src="{{ asset('images/about/mark.png') }}" class="card-img-top team-img" alt="Kovács Márk">
                         <div class="team-social position-absolute bottom-0 end-0 p-3">
                             <a href="#" class="btn btn-sm btn-primary rounded-circle me-1"><i class="fab fa-linkedin-in"></i></a>
                             <a href="#" class="btn btn-sm btn-primary rounded-circle"><i class="fab fa-github"></i></a>
@@ -147,7 +147,7 @@
             <div class="col-md-6 col-lg-3">
                 <div class="card team-card border-0 shadow-sm h-100">
                     <div class="position-relative">
-                        <img src="{{ asset('images/team/eszter.jpg') }}" class="card-img-top team-img" alt="Horváth Eszter">
+                        <img src="{{ asset('images/about/eszter.png') }}" class="card-img-top team-img" alt="Horváth Eszter">
                         <div class="team-social position-absolute bottom-0 end-0 p-3">
                             <a href="#" class="btn btn-sm btn-primary rounded-circle me-1"><i class="fab fa-linkedin-in"></i></a>
                             <a href="#" class="btn btn-sm btn-primary rounded-circle"><i class="fab fa-instagram"></i></a>
@@ -165,7 +165,7 @@
             <div class="col-md-6 col-lg-3">
                 <div class="card team-card border-0 shadow-sm h-100">
                     <div class="position-relative">
-                        <img src="{{ asset('images/team/david.jpg') }}" class="card-img-top team-img" alt="Tóth Dávid">
+                        <img src="{{ asset('images/about/david.png') }}" class="card-img-top team-img" alt="Tóth Dávid">
                         <div class="team-social position-absolute bottom-0 end-0 p-3">
                             <a href="#" class="btn btn-sm btn-primary rounded-circle me-1"><i class="fab fa-linkedin-in"></i></a>
                             <a href="#" class="btn btn-sm btn-primary rounded-circle"><i class="fab fa-twitter"></i></a>
@@ -241,7 +241,7 @@
                 </div>
                 <div class="col-lg-6">
                     <div class="ratio ratio-16x9 rounded overflow-hidden shadow-lg">
-                        <img src="{{ asset('images/about/community.jpg') }}" alt="Közösségi esemény" class="img-cover">
+                        <img src="{{ asset('images/about/esemeny.png') }}" alt="Közösségi esemény" class="img-cover">
                     </div>
                 </div>
             </div>

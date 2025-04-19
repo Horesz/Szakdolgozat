@@ -4,90 +4,119 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
-use App\Models\Newsletter;
-use App\Mail\ContactForm;
+use App\Mail\ContactFormMail;
 
 class PageController extends Controller
 {
     /**
-     * Megjeleníti a Rólunk oldalt
+     * Rólunk oldal
      */
     public function about()
     {
-        return view('pages.about');
+        return view('layouts.pages.about');
     }
 
     /**
-     * Megjeleníti a Kapcsolat oldalt
+     * Kapcsolat oldal
      */
     public function contact()
     {
-        return view('pages.contact');
+        return view('layouts.pages.contact');
     }
 
     /**
-     * Kapcsolati űrlap beküldésének kezelése
+     * Kapcsolati űrlap feldolgozása
      */
     public function submitContact(Request $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|max:255',
-            'subject' => 'required|string|max:255',
+        // Validáljuk az űrlap mezőit
+        $validatedData = $request->validate([
+            'name' => 'required|string|max:100',
+            'email' => 'required|email|max:100',
+            'subject' => 'required|string|max:200',
+            'topic' => 'required|string',
             'message' => 'required|string',
+            'privacy' => 'required'
         ]);
 
-        // Email küldése a cég címére
-        Mail::to('info@gamershop.hu')->send(new ContactForm($validated));
+        // Email küldés az adminnak
+        Mail::to('info@gamershop.hu')->send(new ContactFormMail($validatedData));
 
-        return back()->with('success', 'Köszönjük! Üzeneted sikeresen elküldtük. Hamarosan válaszolunk.');
+        // Visszairányítjuk a kapcsolat oldalra sikeres üzenettel
+        return redirect()->route('contact')->with('success', 'Köszönjük megkeresésed! Munkatársaink hamarosan felveszik veled a kapcsolatot.');
     }
 
     /**
-     * Hírlevél feliratkozás kezelése
+     * Szállítási információk oldal
      */
-    public function subscribeNewsletter(Request $request)
+    public function shipping()
     {
-        $validated = $request->validate([
-            'email' => 'required|email|max:255|unique:newsletters,email',
-        ]);
-
-        Newsletter::create([
-            'email' => $validated['email'],
-        ]);
-
-        return back()->with('success', 'Sikeresen feliratkoztál hírlevelünkre!');
+        return view('layouts.pages.shipping');
     }
 
     /**
-     * Megjeleníti az ÁSZF oldalt
+     * Fizetési módok oldal
+     */
+    public function payment()
+    {
+        return view('layouts.pages.payment');
+    }
+
+    /**
+     * GYIK oldal
+     */
+    public function faq()
+    {
+        return view('layouts.pages.faq');
+    }
+
+    /**
+     * Felhasználási feltételek oldal
      */
     public function terms()
     {
-        return view('pages.terms');
+        return view('layouts.pages.terms');
     }
 
     /**
-     * Megjeleníti az Adatvédelmi oldalt
+     * Adatvédelmi tájékoztató oldal
      */
     public function privacy()
     {
-        return view('pages.privacy');
+        return view('layouts.pages.privacy');
     }
 
     /**
-     * Megjeleníti a Cookie szabályzat oldalt
+     * Cookie tájékoztató oldal
      */
     public function cookies()
     {
-        return view('pages.cookies');
+        return view('layouts.pages.cookies');
     }
 
     /**
-     * Megjeleníti az Oldaltérkép oldalt
+     * Sitemap oldal
      */
     public function sitemap()
     {
-        return view('pages.sitemap');
+        return view('layouts.pages.sitemap');
+    }
+
+    /**
+     * Hírlevél feliratkozás
+     */
+    public function subscribeNewsletter(Request $request)
+    {
+        // Validáljuk az űrlap mezőit
+        $validatedData = $request->validate([
+            'email' => 'required|email|max:100',
+            'privacy' => 'required'
+        ]);
+
+        // Itt történne a hírlevél feliratkozás logikája
+        // Például adatbázisba mentés vagy API hívás a hírlevélküldő rendszer felé
+
+        // Visszairányítjuk a főoldalra sikeres üzenettel
+        return redirect()->back()->with('success', 'Sikeres feliratkozás! Köszönjük, hogy feliratkoztál hírlevelünkre.');
     }
 }

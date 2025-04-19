@@ -7,10 +7,13 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\ContactMessageController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\NewsletterController;
 use App\Http\Controllers\OrderManagmentController;
+use App\Http\Controllers\PageController;
+
 
 use Illuminate\Support\Facades\Route;
 
@@ -18,18 +21,24 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
 
-
-// statikus oldalak
-
+// Statikus oldalak
 Route::get('/about', [PageController::class, 'about'])->name('about');
-Route::get('/contact', [PageController::class, 'contact'])->name('contact');
-Route::post('/contact', [PageController::class, 'submitContact'])->name('contact.submit');
 Route::get('/terms', [PageController::class, 'terms'])->name('terms');
 Route::get('/privacy', [PageController::class, 'privacy'])->name('privacy');
 Route::get('/cookies', [PageController::class, 'cookies'])->name('cookies');
 Route::get('/sitemap', [PageController::class, 'sitemap'])->name('sitemap');
+Route::get('/shipping', [PageController::class, 'shipping'])->name('shipping');
+Route::get('/payment', [PageController::class, 'payment'])->name('payment');
+Route::get('/faq', [PageController::class, 'faq'])->name('faq');
 
-Route::post('/newsletter/subscribe', [PageController::class, 'subscribeNewsletter'])->name('newsletter.subscribe');
+// Kontakt oldalak és űrlapok
+Route::get('/contact', [ContactController::class, 'index'])->name('contact');
+Route::post('/contact', [ContactController::class, 'submit'])->name('contact.submit');
+Route::get('/contact/success', [ContactController::class, 'success'])->name('contact.success');
+Route::post('/contact/ajax', [ContactController::class, 'ajaxSubmit'])->name('contact.ajax');
+
+// Hírlevél feliratkozás
+Route::post('/newsletter/subscribe', [NewsletterController::class, 'subscribe'])->name('newsletter.subscribe');
 
 
 // ✅ Kategóriák listázása (ha van CategoryController)
@@ -53,12 +62,8 @@ Route::get('/products/{product}', [ProductController::class, 'show'])->name('pro
 Route::get('/deals', [ProductController::class, 'deals'])->name('deals');
 
 // ✅ Egyéb publikus oldalak
-Route::get('/contact', [ContactController::class, 'index'])->name('contact');
 Route::get('/cart', [CartController::class, 'index'])->name('cart');
 Route::get('/search', [ProductController::class, 'search'])->name('search');
-
-// ✅ Hírlevél feliratkozás
-Route::post('/newsletter/subscribe', [NewsletterController::class, 'subscribe'])->name('newsletter.subscribe');
 
 // ✅ Bejelentkezett felhasználói útvonalak
 Route::middleware(['auth'])->group(function () {
@@ -72,6 +77,13 @@ Route::middleware(['auth'])->group(function () {
 
     // ✅ Rendelések (csak bejelentkezett felhasználók)
     Route::get('/orders', [OrderController::class, 'index'])->name('orders');
+    
+    // Kapcsolati üzenetek kezelése (bejelentkezett felhasználóknak)
+    Route::get('/contact-messages', [ContactMessageController::class, 'index'])->name('contact-messages.index');
+    Route::get('/contact-messages/{contactMessage}', [ContactMessageController::class, 'show'])->name('contact-messages.show');
+    Route::post('/contact-messages/{contactMessage}/reply', [ContactMessageController::class, 'reply'])->name('contact-messages.reply');
+    Route::put('/contact-messages/{contactMessage}/status', [ContactMessageController::class, 'updateStatus'])->name('contact-messages.update-status');
+    Route::delete('/contact-messages/{contactMessage}', [ContactMessageController::class, 'destroy'])->name('contact-messages.destroy');
 });
 
 // ✅ Admin felület (csak admin felhasználóknak) - itt csak a bejelentkezést ellenőrizzük
@@ -118,7 +130,6 @@ Route::middleware(['auth'])->group(function () {
     // Fizetési és köszönő oldalak
     Route::get('/orders/{id}/payment', [App\Http\Controllers\OrderController::class, 'payment'])->name('orders.payment');
     Route::post('/orders/{id}/payment', [App\Http\Controllers\OrderController::class, 'processPayment'])->name('orders.process-payment');
-    Route::post('/orders/{id}/payment', [App\Http\Controllers\OrderController::class, 'processPayment'])->name('orders.process-payment');
     Route::get('/orders/{id}/thankyou', [App\Http\Controllers\OrderController::class, 'thankyou'])->name('orders.thankyou');
     
     // Felhasználó rendeléseinek kezelése
@@ -130,11 +141,6 @@ Route::middleware(['auth'])->group(function () {
 
 // A meglévő cart.checkout mellett
 Route::get('/layouts/admin/cart/checkout', [CartController::class, 'checkoutView'])->name('layouts.admin.cart.checkout');
-// ✅ Autentikációs útvonalak (Laravel Breeze/Fortify)
-
-
-
-
 
 // orders ADMIN FELÜLET
 Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () {
@@ -143,4 +149,5 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::patch('/orders/{order}/status', [OrderManagmentController::class, 'updateStatus'])->name('orders.update-status');
     Route::patch('/orders/{order}/payment-status', [OrderManagmentController::class, 'updatePaymentStatus'])->name('orders.update-payment-status');
 });
+
 require __DIR__.'/auth.php';
