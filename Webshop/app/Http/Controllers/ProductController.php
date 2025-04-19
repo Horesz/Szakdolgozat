@@ -12,16 +12,81 @@ use Illuminate\Support\Facades\Log;
 
 class ProductController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        // Jogosultság ellenőrzése (ez megmarad)
         if (!(auth()->check() && (auth()->user()->role == 'admin' || auth()->user()->role == 'munkatars'))) {
             return redirect('/')->with('error', 'Nincs jogosultságod ehhez a művelethez!');
         }
         
-        $products = Product::latest()->paginate(10);
+        // Termékek lekérdezése szűréssel
+        $query = Product::query();
         
+        // Kategória szűrő
+        if ($request->filled('category')) {
+            $query->where('category_id', $request->category);
+        }
+        
+        // Státusz szűrő
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+        
+        // Ár tartomány szűrő
+        if ($request->filled('min_price')) {
+            $query->where('price', '>=', $request->min_price);
+        }
+        
+        if ($request->filled('max_price')) {
+            $query->where('price', '<=', $request->max_price);
+        }
+        
+        // Keresés
+        if ($request->filled('search')) {
+            $searchTerm = $request->search;
+            $query->where(function($q) use ($searchTerm) {
+                $q->where('name', 'like', "%{$searchTerm}%")
+                  ->orWhere('brand', 'like', "%{$searchTerm}%")
+                  ->orWhere('short_description', 'like', "%{$searchTerm}%");
+            });
+        }
+        
+        // Checkbox szűrők
+        if ($request->has('is_featured')) {
+            $query->where('is_featured', 1);
+        }
+        
+        if ($request->has('is_new_arrival')) {
+            $query->where('is_new_arrival', 1);
+        }
+        
+        if ($request->has('has_discount')) {
+            $query->where('discount_percentage', '>', 0);
+        }
+        
+        if ($request->has('low_stock')) {
+            $query->where('stock_quantity', '<', 5);
+        }
+        
+        // Rendezés
+        $sortColumn = $request->input('sort', 'created_at');
+        $sortDirection = $request->input('direction', 'desc');
+        
+        $allowedSortColumns = ['name', 'price', 'stock_quantity', 'created_at', 'status'];
+        
+        if (in_array($sortColumn, $allowedSortColumns)) {
+            $query->orderBy($sortColumn, $sortDirection);
+        } else {
+            $query->latest(); // Alapértelmezett rendezés
+        }
+        
+        // Lapozás
+        $products = $query->paginate(10);
+        
+        // Átirányítás a view-ra
         return view('layouts.admin.products.index', compact('products'));
     }
+    
 
     public function create()
     {
@@ -194,63 +259,96 @@ class ProductController extends Controller
     }
 
     // ProductController.php - browse metódus
-public function browse(Request $request)
-{
-    // Kategória szűrés
-    $categoryId = $request->input('category');
-    $query = Product::where('status', 'Aktív');
-    
-    if ($categoryId) {
-        $query->where('category_id', $categoryId);
+/**
+     * Termékek böngészése szűrési lehetőségekkel
+     */
+    public function browse(Request $request)
+    {
+        // Aktív termékek lekérdezése alapból
+        $query = Product::where('status', 'Aktív');
+        
+        // Kategória szűrés
+        if ($request->filled('category')) {
+            $categoryId = $request->category;
+            $query->where('category_id', $categoryId);
+            
+            // Az aktuális kategória adatai a view számára
+            $currentCategory = Category::find($categoryId);
+        } else {
+            $currentCategory = null;
+        }
+        
+        // Ár szűrés
+        if ($request->filled('min_price')) {
+            $query->where('price', '>=', $request->min_price);
+        }
+        
+        if ($request->filled('max_price')) {
+            $query->where('price', '<=', $request->max_price);
+        }
+        
+        // Keresés
+        if ($request->filled('search')) {
+            $searchTerm = $request->search;
+            $query->where(function($q) use ($searchTerm) {
+                $q->where('name', 'like', "%{$searchTerm}%")
+                  ->orWhere('brand', 'like', "%{$searchTerm}%")
+                  ->orWhere('short_description', 'like', "%{$searchTerm}%")
+                  ->orWhere('full_description', 'like', "%{$searchTerm}%");
+            });
+        }
+        
+        // Rendezés
+        $sort = $request->input('sort', 'newest'); // alapértelmezett: legújabb
+        
+        switch ($sort) {
+            case 'price_low':
+                $query->orderBy('price', 'asc');
+                break;
+            case 'price_high':
+                $query->orderBy('price', 'desc');
+                break;
+            case 'name':
+                $query->orderBy('name', 'asc');
+                break;
+            case 'newest':
+            default:
+                $query->orderBy('created_at', 'desc');
+                break;
+        }
+        
+        // További szűrők hozzáadása
+        if ($request->has('discount_only')) {
+            $query->where('discount_percentage', '>', 0);
+        }
+        
+        if ($request->has('new_only')) {
+            $query->where('is_new_arrival', 1);
+        }
+        
+        // Lapozás
+        $products = $query->paginate(12)->withQueryString();
+        
+        // Aktív kategóriák lekérdezése a szűrőhöz
+        $categories = Category::where('status', 'active')->get();
+        
+        // SEO információk
+        $title = $currentCategory 
+                ? $currentCategory->name . ' - Termékek böngészése' 
+                : 'Termékek böngészése';
+                
+        $description = $currentCategory 
+                     ? 'Böngésszen ' . $currentCategory->name . ' termékeink között a GamerShop webáruházban.' 
+                     : 'Böngésszen termékkínálatunkban és találja meg a legjobb gaming termékeket a GamerShop webáruházban.';
+        
+        return view('layouts.admin.products.browse', compact(
+            'products', 
+            'categories', 
+            'currentCategory',
+            'title',
+            'description'
+        ));
     }
-    
-    // Ár szűrés
-    $minPrice = $request->input('min_price');
-    $maxPrice = $request->input('max_price');
-    
-    if ($minPrice) {
-        $query->where('price', '>=', $minPrice);
-    }
-    
-    if ($maxPrice) {
-        $query->where('price', '<=', $maxPrice);
-    }
-    
-    // Rendezés
-    $sort = $request->input('sort', 'newest'); // alapértelmezett: legújabb
-    
-    switch ($sort) {
-        case 'price_low':
-            $query->orderBy('price', 'asc');
-            break;
-        case 'price_high':
-            $query->orderBy('price', 'desc');
-            break;
-        case 'name':
-            $query->orderBy('name', 'asc');
-            break;
-        case 'newest':
-        default:
-            $query->orderBy('created_at', 'desc');
-            break;
-    }
-    
-    // Keresés
-    $search = $request->input('search');
-    if ($search) {
-        $query->where(function($q) use ($search) {
-            $q->where('name', 'like', "%{$search}%")
-              ->orWhere('short_description', 'like', "%{$search}%")
-              ->orWhere('full_description', 'like', "%{$search}%");
-        });
-    }
-    
-    // Lapozás
-    $products = $query->paginate(12);
-    $categories = Category::where('status', 'active')->get();
-    
-    return view('layouts.admin.products.browse', compact('products', 'categories'));
-}
 public function show(Product $product)
 {
     // Specifications JSON string dekódolása tömbbé, ha nem üres

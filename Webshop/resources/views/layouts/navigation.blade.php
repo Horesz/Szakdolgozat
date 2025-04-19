@@ -19,26 +19,43 @@
                         <i class="fas fa-home me-1"></i> Főoldal
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('products.browse') && !request()->has('category') ? 'active' : '' }}" href="{{ route('products.browse') }}">
+                        <i class="fas fa-box-open me-1"></i> Termékek böngészése
+                    </a>
+                </li>
                 {{-- Termék kategóriák dropdown --}}
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="categoryDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <a class="nav-link dropdown-toggle {{ request()->routeIs('products.browse') && request()->has('category') ? 'active' : '' }}" href="#" id="categoryDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="fas fa-list me-1"></i> Kategóriák
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="categoryDropdown">
                         @foreach(\App\Models\Category::where('status', 'active')->get() as $category)
-                            <li><a class="dropdown-item" href="/category/{{ $category->slug }}">{{ $category->name }}</a></li>
+                            <li><a class="dropdown-item {{ request()->input('category') == $category->id ? 'active' : '' }}" href="{{ route('products.browse', ['category' => $category->id]) }}">{{ $category->name }}</a></li>
                         @endforeach
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="{{ route('categories.index') }}"><i class="fas fa-th-large me-1"></i> Összes kategória</a></li>
                     </ul>
                 </li>
-                <li class="nav-item">
+                {{-- <li class="nav-item">
                     <a class="nav-link {{ request()->is('deals') ? 'active' : '' }}" href="/deals">
                         <i class="fas fa-percentage me-1"></i> Akciók
                     </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('products.browse') ? 'active' : '' }}" href="{{ route('products.browse') }}">
-                        <i class="fas fa-box-open me-1"></i> Termékek böngészése
+                </li> --}}
+                
+                {{-- Új menüpontok --}}
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="shopInfoDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-info-circle me-1"></i> Információk
                     </a>
+                    <ul class="dropdown-menu" aria-labelledby="shopInfoDropdown">
+                        <li><a class="dropdown-item" href="/about"><i class="fas fa-store me-1"></i> Rólunk</a></li>
+                        <li><a class="dropdown-item" href="/contact"><i class="fas fa-envelope me-1"></i> Kapcsolat</a></li>
+                        <li><a class="dropdown-item" href="/shipping"><i class="fas fa-truck me-1"></i> Szállítási információk</a></li>
+                        <li><a class="dropdown-item" href="/payment"><i class="fas fa-credit-card me-1"></i> Fizetési módok</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="/faq"><i class="fas fa-question-circle me-1"></i> GYIK</a></li>
+                    </ul>
                 </li>
             </ul>
 
@@ -241,6 +258,22 @@
     color: #212529;
     font-weight: bold;
     cursor: default;
+}
+
+/* Aktív szülő menüpont stílusa */
+.nav-link.active {
+    position: relative;
+}
+
+.nav-link.active:after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 30%;
+    right: 30%;
+    height: 3px;
+    background-color: #fff;
+    border-radius: 3px;
 }
 </style>
 
