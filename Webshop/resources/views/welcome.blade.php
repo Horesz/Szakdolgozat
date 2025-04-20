@@ -7,7 +7,7 @@
         <div class="container">
             <div class="row min-vh-75 align-items-center py-5">
                 <div class="col-lg-6">
-                    <h1 class="display-4 fw-bold mb-4 text-gradient">Üdvözöllek a GamerShop-ban!</h1>
+                    <h1 class="display-4 fw-bold mb-4 text-white text-gradient">Üdvözöllek a GamerShop-ban!</h1>
                     <p class="lead mb-4">Fedezd fel prémium gaming termékeinket és alakítsd ki a tökéletes setup-ot!</p>
                     <div class="d-flex gap-3">
                         <a href="{{ route('products.browse') }}" class="btn btn-primary btn-lg">
@@ -20,7 +20,7 @@
                 </div>
                 <div class="col-lg-6 d-none d-lg-block">
                     <div class="position-relative">
-                        <img src="{{ asset('images/Gamershop.png') }}" alt="Gaming Setup" class="img-fluid rounded shadow-lg">
+                        <img src="{{ asset('images/about/iroda.png') }}" alt="Gaming Setup" class="img-fluid rounded shadow-lg">
                         <div class="position-absolute top-0 start-0 w-100 h-100 bg-glow"></div>
                     </div>
                 </div>
@@ -434,7 +434,7 @@
     }
     
     .text-gradient {
-        background: linear-gradient(90deg, #2b5be0 0%, #5834b4 100%);
+        background: linear-gradient(90deg, #9a36ad 0%, #5834b4 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
     }

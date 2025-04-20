@@ -23,6 +23,10 @@ class PageController extends Controller
     {
         return view('layouts.pages.contact');
     }
+    public function service()
+    {
+        return view('layouts.pages.service');
+    }
 
     /**
      * Kapcsolati űrlap feldolgozása

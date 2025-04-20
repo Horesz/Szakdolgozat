@@ -1,24 +1,3 @@
-<head>
-    <style>
-      html, body {
-      height: 100%;
-      margin: 0;
-      display: flex;
-      flex-direction: column;
-  }
-  
-  main {
-      flex: 1; /* Kitölti a rendelkezésre álló helyet */
-  }
-  
-  footer {
-      margin-top: auto; /* Az oldal aljára helyezi a footert */
-  }
-  
-    </style>
-  </head>
-  
-
 @extends('layouts.app')
 
 @section('title', 'GamerShop - Dashboard')
@@ -31,26 +10,38 @@
     @if($user->role === 'munkatars')
     <div class="alert alert-info mt-4">
         Munkatárs felhasználó.
-        {{-- <a href="{{ route('admin.dashboard') }}" class="btn btn-danger">Adminisztrációs felület</a> --}}
     </div>
     @endif
+
     @if($user->role === 'admin')
     <div class="alert alert-info mt-4">
         Adminisztrátor felhasználó.
-        {{-- <a href="{{ route('admin.dashboard') }}" class="btn btn-danger">Adminisztrációs felület</a> --}}
     </div>
     @endif
+
     @if($user->role === 'user')
     <div class="alert alert-info mt-4">
         Üdvözlünk a webshopban. Jó nézelődést.
-        {{-- <a href="{{ route('admin.dashboard') }}" class="btn btn-danger">Adminisztrációs felület</a> --}}
     </div>
     @endif
 
     <!-- Profil kártya -->
     <div class="card mt-4">
-        <div class="card-header">Személyes adati: </div>
-        <div class="card-body">
+        <div class="card-header">Személyes adatok</div>
+        <div class="card-body text-center">
+
+            <!-- Profilkép -->
+            @if($user->profile_image)
+                <div class="mb-3">
+                    <img src="{{ asset('storage/' . $user->profile_image) }}" alt="Profilkép" style="max-width: 150px; border-radius: 50%;">
+                </div>
+            @else
+                <div class="mb-3">
+                    <img src="{{ asset('images/default-profile.png') }}" alt="Alapértelmezett profilkép" style="max-width: 150px; border-radius: 50%;">
+                </div>
+            @endif
+
+            <!-- Személyes adatok -->
             <p><strong>Név:</strong> {{ $user->firstname }} {{ $user->lastname }}</p>
             <p><strong>Email:</strong> {{ $user->email }}</p>
             <p><strong>Telefonszám:</strong> {{ $user->phone ?? 'Nincs megadva' }}</p>
@@ -70,12 +61,9 @@
             </p>
 
             <!-- Profil szerkesztés gomb -->
-            <a href="{{ route('profile.edit') }}" class="btn text-white btn-primary">Profil szerkesztése</a>
+            <a href="{{ route('profile.edit') }}" class="btn text-white btn-primary mt-2">Profil szerkesztése</a>
         </div>
     </div>
-
-    <!-- Adminisztrátor információk -->
-    
 
     <!-- Aktivitások -->
     @if(!empty($recentActivities))

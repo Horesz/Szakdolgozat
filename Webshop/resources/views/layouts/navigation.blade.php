@@ -61,9 +61,9 @@
 
             {{-- Keresés --}}
             <div class="d-flex align-items-center">
-                <form class="d-flex me-3 search-form" action="/search" method="GET">
+                <form class="d-flex me-3 search-form" action="{{ route('search') }}" method="GET">
                     <div class="input-group">
-                        <input class="form-control rounded-start" type="search" name="q" placeholder="Keresés..." aria-label="Search">
+                        <input class="form-control rounded-start" type="search" name="q" placeholder="Keresés..." aria-label="Search" required>
                         <button class="btn btn-primary rounded-end" type="submit">
                             <i class="fas fa-search"></i>
                         </button>

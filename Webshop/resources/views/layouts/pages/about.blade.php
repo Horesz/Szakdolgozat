@@ -3,13 +3,12 @@
 @section('title', 'Rólunk - GamerShop')
 
 @section('content')
-<div class="about-page py-5">
-    <!-- Hero section -->
+<div class="about-page py-0.5">
     <div class="container-fluid mb-5 about-hero">
         <div class="row">
             <div class="col-12 px-0">
                 <div class="position-relative">
-                    <img src="{{ asset('images/about/office.jpg') }}" alt="GamerShop Iroda" class="w-100 about-hero-img">
+                    <img src="{{ asset('images/about/iroda.png') }}" alt="GamerShop Iroda" class="w-100 about-hero-img">
                     <div class="about-hero-overlay"></div>
                     <div class="container position-absolute top-50 start-50 translate-middle text-center">
                         <h1 class="display-4 fw-bold text-white mb-3">Rólunk</h1>

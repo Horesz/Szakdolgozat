@@ -4,85 +4,92 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 
 class ProfileController extends Controller
 {
     /**
-     * Display the user's profile form.
+     * Profil szerkesztési oldal megjelenítése
      */
-    
-     public function index()
-     {
-         return view('profile.edit'); // Mivel edit.blade.php létezik
-     }
-     
-
-
-    /**
-     * Update the user's profile information.
-     */
-    public function update(Request $request)
+    public function edit()
     {
-        $user = auth()->user();
-
-        // Validálás
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|max:255',
-            'phone' => 'nullable|string|max:15',
-            'postal_code' => 'nullable|string|max:10',
-            'street' => 'nullable|string|max:255',
-            'house_number' => 'nullable|string|max:10',
-            'floor' => 'nullable|string|max:10',
-            'door' => 'nullable|string|max:10',
-            'profile_image' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
-        ]);
-
-        // Adatok frissítése
-        $user->update([
-            'name' => $request->input('name'),
-            'email' => $request->input('email'),
-            'phone' => $request->input('phone'),
-            'postal_code' => $request->input('postal_code'),
-            'street' => $request->input('street'),
-            'house_number' => $request->input('house_number'),
-            'floor' => $request->input('floor'),
-            'door' => $request->input('door'),
-        ]);
-
-        // Profilkép frissítése
-        if ($request->hasFile('profile_image')) {
-            // Ha van új kép, feltöltjük és elmentjük az elérési utat
-            $path = $request->file('profile_image')->store('profile_images', 'public');
-            $user->update(['profile_image' => $path]);
-        }
-
-        return redirect()->route('profile.edit')->with('success', 'A profilod frissítve lett!');
+        $user = Auth::user();
+        return view('profile.edit', compact('user'));
     }
 
     /**
-     * Delete the user's account.
+     * Profil adatok frissítése
+     */
+    public function update(Request $request)
+    {
+        $user = Auth::user();
+
+        // Validáció
+        $validatedData = $request->validate([
+            'firstname' => 'required|string|max:50',
+            'lastname' => 'required|string|max:50',
+            'email' => [
+                'required', 
+                'email', 
+                Rule::unique('users')->ignore($user->id)
+            ],
+            'phone' => 'nullable|string|max:20',
+            'address_zip' => 'nullable|string|max:10',
+            'address_city' => 'nullable|string|max:100',
+            'address_street' => 'nullable|string|max:255',
+            'address_additional' => 'nullable|string|max:100',
+            'profile_image' => 'nullable|image|max:2048' // Maximum 2MB kép
+        ]);
+
+        // Felhasználó adatok frissítése
+        $user->update([
+            'firstname' => $validatedData['firstname'],
+            'lastname' => $validatedData['lastname'],
+            'email' => $validatedData['email'],
+            'phone' => $validatedData['phone'] ?? null,
+            'address_zip' => $validatedData['address_zip'] ?? null,
+            'address_city' => $validatedData['address_city'] ?? null,
+            'address_street' => $validatedData['address_street'] ?? null,
+            'address_additional' => $validatedData['address_additional'] ?? null,
+        ]);
+
+        // Profilkép feltöltése
+        if ($request->hasFile('profile_image')) {
+            // Régi kép törlése (ha van)
+            if ($user->profile_image && Storage::exists($user->profile_image)) {
+                Storage::delete($user->profile_image);
+            }
+
+            // Új kép mentése
+            $imagePath = $request->file('profile_image')->store('profile_images', 'public');
+            $user->profile_image = $imagePath;
+            $user->save();
+        }
+
+        // Sikeres frissítés után átirányítás
+        return redirect()->route('profile.edit')
+            ->with('success', 'Profil adatok sikeresen frissítve!');
+    }
+
+    /**
+     * Profil törlése
      */
     public function destroy(Request $request)
     {
-        // Validáljuk a jelszót a fiók törléséhez
-        $request->validateWithBag('userDeletion', [
-            'password' => ['required', 'current_password'],
-        ]);
+        $user = Auth::user();
 
-        $user = $request->user();
-
-        // Kijelentkeztetés és fiók törlés
+        // Felhasználó kijelentkeztetése
         Auth::logout();
 
-        // Fiók törlése
+        // Felhasználó törlése
         $user->delete();
 
-        // Munkamenet törlése és új generálása
+        // Munkamenet érvénytelenítése
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return Redirect::to('/');
+        // Átirányítás a főoldalra
+        return redirect('/')->with('success', 'Felhasználói fiók sikeresen törölve.');
     }
 }

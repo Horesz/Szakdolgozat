@@ -24,7 +24,8 @@ class User extends Authenticatable
         'password',
         'role',
         'is_active',
-        'loyalty_points' // Új mező a hűségpontokhoz
+        'loyalty_points',
+        'profile_image' // Új opcionális mező a profilképhez
     ];
 
     protected $hidden = [
@@ -36,8 +37,34 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'birth_date' => 'date',
         'is_active' => 'boolean',
-        'loyalty_points' => 'integer', // Új casting a hűségpontokhoz
+        'loyalty_points' => 'integer',
     ];
+
+    // Profilkép alapértelmezett értéke, ha nincs feltöltve
+    public function getProfileImageAttribute($value)
+    {
+        // Ha van feltöltött kép, használd azt
+        if ($value) {
+            return $value;
+        }
+        
+        // Ha nincs, visszatér egy alapértelmezett avatar URL-lel
+        return 'images/default-avatar.png';
+    }
+
+    // Profilkép teljes URL-jének lekérése
+    public function getProfileImageUrlAttribute()
+    {
+        // Ha a profilkép egy teljes URL, vagy storage-ban van
+        if (filter_var($this->profile_image, FILTER_VALIDATE_URL)) {
+            return $this->profile_image;
+        }
+        
+        // Ha a kép a storage mappában van
+        return $this->profile_image 
+            ? asset('storage/' . $this->profile_image) 
+            : asset('images/default-avatar.png');
+    }
 
     // Password hash mutator
     public function setPasswordAttribute($value)

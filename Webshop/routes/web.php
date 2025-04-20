@@ -13,6 +13,8 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\NewsletterController;
 use App\Http\Controllers\OrderManagmentController;
 use App\Http\Controllers\PageController;
+use App\Http\Controllers\SearchController;
+
 
 
 use Illuminate\Support\Facades\Route;
@@ -30,6 +32,8 @@ Route::get('/sitemap', [PageController::class, 'sitemap'])->name('sitemap');
 Route::get('/shipping', [PageController::class, 'shipping'])->name('shipping');
 Route::get('/payment', [PageController::class, 'payment'])->name('payment');
 Route::get('/faq', [PageController::class, 'faq'])->name('faq');
+Route::get('/service', [PageController::class, 'service'])->name('service');
+Route::get('/search', [SearchController::class, 'search'])->name('search');
 
 // Kontakt oldalak és űrlapok
 Route::get('/contact', [ContactController::class, 'index'])->name('contact');
@@ -63,7 +67,6 @@ Route::get('/deals', [ProductController::class, 'deals'])->name('deals');
 
 // ✅ Egyéb publikus oldalak
 Route::get('/cart', [CartController::class, 'index'])->name('cart');
-Route::get('/search', [ProductController::class, 'search'])->name('search');
 
 // ✅ Bejelentkezett felhasználói útvonalak
 Route::middleware(['auth'])->group(function () {
